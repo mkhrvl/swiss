@@ -62,9 +62,9 @@ const outputLabels = {
 
 export function SecretGenerators({
   kind,
-}: {
+}: Readonly<{
   kind: 'api-key' | 'jwt-key' | 'random-password';
-}) {
+}>) {
   const { generators } = useWorkspace();
   let state: Pick<
     typeof generators.api,
@@ -290,6 +290,7 @@ export function SecretGenerators({
       <FieldSet className="mt-6">
         <FieldLegend>{outputLabels[kind]} results</FieldLegend>
         <FieldGroup className="gap-3">
+          {/* These five slots never reorder; regeneration preserves each row's focus. */}
           {state.results.map((result, index) => {
             const label = `${outputLabels[kind]} ${index + 1}`;
             return (

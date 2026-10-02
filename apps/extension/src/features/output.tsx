@@ -10,10 +10,10 @@ import { useEffect, useState } from 'react';
 export function Output({
   value,
   label = 'Output',
-}: {
+}: Readonly<{
   value: string;
   label?: string;
-}) {
+}>) {
   const [status, setStatus] = useState('');
   useEffect(() => {
     setStatus('');

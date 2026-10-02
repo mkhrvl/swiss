@@ -8,6 +8,7 @@ const feature = 'packages/core/src/identity-passwords';
 const publish = resolve('artifacts/identity-publish');
 // Publish into an empty output so old fingerprinted assemblies cannot accumulate.
 await rm(publish, { recursive: true, force: true });
+// Use the developer's installed SDK; this local build runs with their privileges.
 const result = spawnSync(
   'dotnet',
   [
@@ -27,6 +28,7 @@ if (result.status !== 0) process.exit(result.status ?? 1);
 const { version, directory } = IDENTITY_ASSETS;
 const source = join(publish, 'wwwroot/_framework');
 const files = new Map([['worker.js', await readFile(`${feature}/worker.mjs`)]]);
+// Code-unit ordering keeps manifests identical across machine locales.
 for (const name of (await readdir(source)).sort()) {
   // Runtime config references raw assets. Compressed alternatives are unnecessary.
   if (/\.(js|json|wasm|dat)$/.test(name))

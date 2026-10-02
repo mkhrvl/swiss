@@ -61,7 +61,7 @@ const guidance: Record<
   },
 };
 
-function BcryptHashOutput({ value }: { value: string }) {
+function BcryptHashOutput({ value }: Readonly<{ value: string }>) {
   const [copied, setCopied] = useState(false);
   const [message, setMessage] = useState('');
   const version = useRef(0);
@@ -123,9 +123,9 @@ function BcryptHashOutput({ value }: { value: string }) {
 
 export function BcryptPasswords({
   operation,
-}: {
+}: Readonly<{
   operation: 'hash' | 'verify';
-}) {
+}>) {
   const { bcrypt: state } = useWorkspace();
   const hashing = operation === 'hash';
   const title = hashing ? 'Generate bcrypt hash' : 'Verify bcrypt hash';

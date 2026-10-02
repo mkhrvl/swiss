@@ -20,12 +20,11 @@ export const OCR_ASSETS = {
 export async function verifyEnglishModel(model: ArrayBuffer): Promise<boolean> {
   // HTTP servers may label .gz files with Content-Encoding: gzip. Fetch then
   // returns decoded bytes; both representations must match this exact model.
-  const expected =
-    model.byteLength === OCR_ASSETS.modelBytes
-      ? OCR_ASSETS.modelSha256
-      : model.byteLength === OCR_ASSETS.decodedModelBytes
-        ? OCR_ASSETS.decodedModelSha256
-        : undefined;
+  let expected: string | undefined;
+  if (model.byteLength === OCR_ASSETS.modelBytes)
+    expected = OCR_ASSETS.modelSha256;
+  else if (model.byteLength === OCR_ASSETS.decodedModelBytes)
+    expected = OCR_ASSETS.decodedModelSha256;
   if (!expected) return false;
   const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', model));
   return (

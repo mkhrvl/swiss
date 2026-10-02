@@ -7,9 +7,9 @@ import { Output } from './output';
 
 export function IdentityPasswords({
   operation,
-}: {
+}: Readonly<{
   operation: 'hash' | 'verify';
-}) {
+}>) {
   const { identity: state } = useWorkspace();
   const hash = operation === 'hash';
   const password = hash ? state.hashPassword : state.verifyPassword;

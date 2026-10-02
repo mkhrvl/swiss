@@ -21,7 +21,7 @@ export function startOcrWorker() {
   let engine: TesseractWorker | undefined;
   const send = (message: WorkerResponse) => scope.postMessage(message);
 
-  scope.onmessage = async ({ data }) => {
+  async function recognize(data: WorkerRequest) {
     let bitmap: ImageBitmap | undefined;
     try {
       const decoded = await decodeImage(data.image);
@@ -92,5 +92,8 @@ export function startOcrWorker() {
     } finally {
       bitmap?.close();
     }
+  }
+  scope.onmessage = ({ data }) => {
+    void recognize(data);
   };
 }

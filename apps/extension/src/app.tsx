@@ -72,7 +72,10 @@ export function App() {
     if (state.tool === 'ocr' && state.image) {
       const dataUrl = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result));
+        reader.onload = () => {
+          if (typeof reader.result === 'string') resolve(reader.result);
+          else reject(new Error('Image could not be read as a data URL.'));
+        };
         reader.onerror = reject;
         reader.readAsDataURL(state.image!.blob);
       });

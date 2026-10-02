@@ -15,6 +15,34 @@ const required = [
   modelUrl,
 ];
 
+async function loadAsset(
+  cache: Cache,
+  url: string,
+  signal: AbortSignal,
+): Promise<ArrayBuffer | undefined> {
+  const cached = await cache.match(url);
+  if (cached) {
+    if (url !== modelUrl) return;
+    const bytes = await cached.arrayBuffer();
+    if (await verifyEnglishModel(bytes)) return bytes;
+  }
+  const response = await fetch(url, {
+    signal,
+    cache: 'reload',
+    headers: { 'X-Swiss-Prepare': 'ocr' },
+  });
+  if (!response.ok) throw new Error('OCR asset unavailable');
+  let model: ArrayBuffer | undefined;
+  if (url === modelUrl) {
+    model = await response.clone().arrayBuffer();
+    if (!(await verifyEnglishModel(model)))
+      throw new Error('Model integrity check failed');
+  }
+  signal.throwIfAborted();
+  await cache.put(url, response);
+  return model;
+}
+
 export async function loadOcrModel(
   signal: AbortSignal,
   progress: (value: string) => void,
@@ -22,31 +50,12 @@ export async function loadOcrModel(
   signal.throwIfAborted();
   const cache = await caches.open(assetCacheName);
   let model: ArrayBuffer | undefined;
+  // Load sequentially to bound model memory and check cancellation between assets.
   for (const [index, url] of required.entries()) {
     signal.throwIfAborted();
     progress(`Loading OCR ${index + 1} of ${required.length}…`);
-    const cached = await cache.match(url);
-    if (cached) {
-      if (url !== modelUrl) continue;
-      const bytes = await cached.arrayBuffer();
-      if (await verifyEnglishModel(bytes)) {
-        model = bytes;
-        continue;
-      }
-    }
-    const response = await fetch(url, {
-      signal,
-      cache: 'reload',
-      headers: { 'X-Swiss-Prepare': 'ocr' },
-    });
-    if (!response.ok) throw new Error('OCR asset unavailable');
-    if (url === modelUrl) {
-      model = await response.clone().arrayBuffer();
-      if (!(await verifyEnglishModel(model)))
-        throw new Error('Model integrity check failed');
-    }
-    signal.throwIfAborted();
-    await cache.put(url, response);
+    const bytes = await loadAsset(cache, url, signal);
+    if (url === modelUrl) model = bytes;
   }
   signal.throwIfAborted();
   if (!model) throw new Error('English model unavailable');

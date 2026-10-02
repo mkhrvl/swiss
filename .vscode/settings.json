@@ -1,5 +1,8 @@
 {
   "files.associations": {
     "Directory.Build.props": "xml"
+  },
+  "sonarlint.analyzerProperties": {
+    "sonar.typescript.tsconfigPaths": "apps/pwa/tsconfig.json,apps/extension/tsconfig.json,packages/core/tsconfig.json,packages/ui/tsconfig.json"
   }
 }

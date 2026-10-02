@@ -83,11 +83,13 @@ export function useBcryptPasswords() {
           'Bcrypt could not run. Secure hashing requires Web Crypto and worker support; try again.',
         );
     } finally {
-      if (job.current?.controller === controller) {
-        job.current = undefined;
-        if (alive.current) setBusy(undefined);
-      }
+      finishJob(controller);
     }
+  }
+  function finishJob(controller: AbortController) {
+    if (job.current?.controller !== controller) return;
+    job.current = undefined;
+    if (alive.current) setBusy(undefined);
   }
   function changeHashPassword(value: string) {
     invalidate('hash');

@@ -11,6 +11,7 @@ import {
   inspectOcrImage,
   type ImageRegion,
   type OcrError,
+  type OcrResult,
 } from '@swiss/core/ocr';
 import { engineAssets, loadOcrModel } from '../platform/ocr-assets';
 import { useIdentityPasswords } from './identity-passwords';
@@ -92,6 +93,29 @@ function useWorkspaceState() {
     else setMessage(errorMessages[result.error.code]);
   }
 
+  function isCurrentSelection(version: number) {
+    return alive.current && version === selection.current;
+  }
+  function publishRecognition(
+    result: OcrResult,
+    signal: AbortSignal,
+    version: number,
+  ) {
+    if (!isCurrentSelection(version)) return;
+    if (signal.aborted) {
+      setMessage('Recognition cancelled.');
+    } else if (result.ok) {
+      setOutput(result.value);
+      setMessage(
+        result.value.trim()
+          ? 'Text extracted locally.'
+          : 'No text found. Try a clearer image or a smaller region.',
+      );
+    } else {
+      if (result.error.code === 'invalid-model') model.current = undefined;
+      setMessage(errorMessages[result.error.code]);
+    }
+  }
   async function recognize() {
     if (!image || job.current) return;
     const controller = new AbortController();
@@ -105,15 +129,11 @@ function useWorkspaceState() {
       const englishModel =
         model.current ??
         (await loadOcrModel(controller.signal, (status) => {
-          if (
-            alive.current &&
-            version === selection.current &&
-            !controller.signal.aborted
-          )
+          if (isCurrentSelection(version) && !controller.signal.aborted)
             setMessage(status);
         }));
       controller.signal.throwIfAborted();
-      if (!alive.current || version !== selection.current) return;
+      if (!isCurrentSelection(version)) return;
       model.current = englishModel;
       engine.current ??= createOcrEngine(engineAssets);
       setMessage('Starting OCR…');
@@ -122,39 +142,21 @@ function useWorkspaceState() {
         {
           signal: controller.signal,
           onProgress: (value) => {
-            if (
-              alive.current &&
-              version === selection.current &&
-              !controller.signal.aborted
-            ) {
+            if (isCurrentSelection(version) && !controller.signal.aborted) {
               setProgress(value.fraction);
               setMessage(`${value.stage}…`);
             }
           },
         },
       );
-      if (alive.current && version === selection.current) {
-        if (controller.signal.aborted) {
-          setMessage('Recognition cancelled.');
-        } else if (result.ok) {
-          setOutput(result.value);
-          setMessage(
-            result.value.trim()
-              ? 'Text extracted locally.'
-              : 'No text found. Try a clearer image or a smaller region.',
-          );
-        } else {
-          if (result.error.code === 'invalid-model') model.current = undefined;
-          setMessage(errorMessages[result.error.code]);
-        }
-      }
+      publishRecognition(result, controller.signal, version);
     } catch {
       if (!controller.signal.aborted) {
         model.current = undefined;
         engine.current?.dispose();
         engine.current = undefined;
       }
-      if (alive.current && version === selection.current)
+      if (isCurrentSelection(version))
         setMessage(
           controller.signal.aborted
             ? 'Recognition cancelled.'
@@ -196,7 +198,9 @@ function useWorkspaceState() {
 const Workspace = createContext<
   ReturnType<typeof useWorkspaceState> | undefined
 >(undefined);
-export function WorkspaceProvider({ children }: { children: ReactNode }) {
+export function WorkspaceProvider({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   const state = useWorkspaceState();
   return <Workspace.Provider value={state}>{children}</Workspace.Provider>;
 }

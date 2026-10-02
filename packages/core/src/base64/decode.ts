@@ -35,7 +35,7 @@ export function decodeBase64(
   ) {
     return { ok: false, error: { code: 'invalid-input' } };
   }
-  compact = compact.replace(/-/g, '+').replace(/_/g, '/');
+  compact = compact.replaceAll('-', '+').replaceAll('_', '/');
   compact = compact.padEnd(Math.ceil(compact.length / 4) * 4, '=');
   let binary: string;
   try {
@@ -43,6 +43,7 @@ export function decodeBase64(
   } catch {
     return { ok: false, error: { code: 'invalid-input' } };
   }
+  // atob returns one byte per UTF-16 code unit, not Unicode text.
   const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
   try {
     // ignoreBOM preserves U+FEFF, matching the desktop tool's exact text output.

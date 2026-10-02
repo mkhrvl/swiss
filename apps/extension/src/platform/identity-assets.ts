@@ -6,6 +6,7 @@ export const identityWorkerUrl = new URL(
   browser.runtime.getURL('/'),
 ).href;
 // All Identity assets are bundled locally; the worker initializes on first use.
+// Keep async so cancellation rejects the shared initializer contract's promise.
 export async function initializeIdentityAssets(
   signal: AbortSignal,
   _progress: (message: string) => void,

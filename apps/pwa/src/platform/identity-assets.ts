@@ -65,6 +65,7 @@ export async function initializeIdentityAssets(
     checkManifest(downloaded);
     manifest = downloaded;
   }
+  // Keep verification sequential to bound runtime buffers and preserve cancellation.
   for (const [index, file] of manifest.files.entries()) {
     signal.throwIfAborted();
     progress(`Loading Identity ${index + 1} of ${manifest.files.length}…`);

@@ -75,7 +75,7 @@ export function ToolSidebar() {
                 aria-label="Swiss home"
               >
                 <div className="shrink-0 pr-1 text-[29px] leading-none font-[650] tracking-[-0.08em] text-primary">
-                  s
+                  {'s'}
                   <span className="group-data-[collapsible=icon]:hidden">
                     wiss
                   </span>

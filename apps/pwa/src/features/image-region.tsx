@@ -15,12 +15,12 @@ export function ImageRegionPicker({
   region,
   disabled,
   onChange,
-}: {
+}: Readonly<{
   image: WorkspaceImage;
   region?: ImageRegion;
   disabled: boolean;
   onChange: (value: ImageRegion | undefined) => void;
-}) {
+}>) {
   const [url, setUrl] = useState('');
   const [draft, setDraft] = useState<ImageRegion>();
   const start = useRef<{ x: number; y: number }>(undefined);

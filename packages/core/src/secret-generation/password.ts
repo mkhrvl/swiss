@@ -11,11 +11,12 @@ const characters: Record<PasswordCharacterType, string> = {
   digits: '0123456789',
   symbols: '!@#$%^&*()-_=+[]{};:,.?/',
 };
+const defaultOptions: Readonly<PasswordOptions> = {
+  length: 20,
+  characterTypes: ['lowercase', 'uppercase', 'digits', 'symbols'],
+};
 export function generatePassword(
-  options: PasswordOptions = {
-    length: 20,
-    characterTypes: ['lowercase', 'uppercase', 'digits', 'symbols'],
-  },
+  options: Readonly<PasswordOptions> = defaultOptions,
 ): Result<string, SecretGenerationError> {
   if (
     !Number.isInteger(options.length) ||

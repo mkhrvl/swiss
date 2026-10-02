@@ -25,10 +25,11 @@ function generateBytes(
       ).join(''),
     };
   }
+  // btoa expects a binary byte string, not Unicode code points.
   const base64 = btoa(String.fromCharCode(...bytes));
   const value =
     encoding === 'base64url'
-      ? base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+      ? base64.replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '')
       : base64;
   return { ok: true, value };
 }
