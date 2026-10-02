@@ -112,8 +112,7 @@ export function ToolSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <p className="text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-          All tools run locally. Inputs and results stay in this workspace until
-          it closes.
+          All tools run locally.
         </p>
         {isMobile && (
           <Button variant="outline" onClick={() => setOpenMobile(false)}>

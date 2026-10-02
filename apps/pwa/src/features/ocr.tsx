@@ -40,11 +40,9 @@ export function Ocr() {
         }
       }}
     >
-      <h1 id="ocr-title">Extract text</h1>
-      <p className="description">
-        English OCR, processed on your device. Upload, drop or paste an image,
-        then choose the text you need.
-      </p>
+      <h1 id="ocr-title" className="mb-6">
+        Extract text
+      </h1>
       <FieldGroup className="mb-6">
         <Field>
           <FieldLabel htmlFor="image-input">Choose image</FieldLabel>

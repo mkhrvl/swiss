@@ -49,14 +49,6 @@ const characterTypes: { value: PasswordCharacterType; label: string }[] = [
   { value: 'digits', label: 'Digits (0–9)' },
   { value: 'symbols', label: 'Symbols (!@#$…)' },
 ];
-const descriptions = {
-  'api-key':
-    'Generate a random token for your own API. Creating a token here does not register it with a service.',
-  'jwt-key':
-    'Generate a shared secret for HMAC JWT signing. The same secret signs and verifies tokens.',
-  'random-password':
-    'Generate a random password with at least one character from each selected type.',
-};
 const titles = {
   'api-key': 'Generate API key',
   'jwt-key': 'Generate JWT signing key',
@@ -101,8 +93,9 @@ export function SecretGenerators({
     state.error === 'invalid-character-type';
   return (
     <section aria-labelledby="generator-title">
-      <h1 id="generator-title">{titles[kind]}</h1>
-      <p className="description">{descriptions[kind]}</p>
+      <h1 id="generator-title" className="mb-6">
+        {titles[kind]}
+      </h1>
       <form
         noValidate
         onSubmit={(event) => {

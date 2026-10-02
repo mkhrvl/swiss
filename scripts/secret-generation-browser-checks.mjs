@@ -25,10 +25,8 @@ export async function secretGenerationUiChecks() {
       await wait(() => document.querySelector('nav')?.getClientRects().length);
     }
     assert(
-      document.body.textContent.includes(
-        'All tools run locally. Inputs and results stay in this workspace until it closes.',
-      ),
-      'Sidebar is missing the local-processing and workspace note',
+      document.body.textContent.includes('All tools run locally.'),
+      'Sidebar is missing the local-processing note',
     );
     button(label, document.querySelector('nav')).click();
     await wait(() => !document.querySelector('[role="dialog"]'));

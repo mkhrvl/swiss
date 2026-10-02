@@ -1,6 +1,11 @@
 import { Button } from '@swiss/ui/components/button';
 import { Textarea } from '@swiss/ui/components/textarea';
-import { Field, FieldGroup, FieldLabel } from '@swiss/ui/components/field';
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldDescription,
+} from '@swiss/ui/components/field';
 import { decodeBase64 } from '@swiss/core/base64';
 import { useWorkspace } from '../state/workspace';
 import { Output } from './output';
@@ -18,10 +23,9 @@ export function Base64() {
   }
   return (
     <section aria-labelledby="base64-title">
-      <h1 id="base64-title">Decode Base64</h1>
-      <p className="description">
-        Standard or URL alphabet. Padding is optional.
-      </p>
+      <h1 id="base64-title" className="mb-6">
+        Decode Base64
+      </h1>
       <FieldGroup>
         <Field data-invalid={!result.ok}>
           <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -47,6 +51,9 @@ export function Base64() {
             aria-invalid={!result.ok}
             aria-describedby="base64-help"
           />
+          <FieldDescription>
+            Base64 and Base64url · padding optional
+          </FieldDescription>
           <output id="base64-help" className="feedback">
             {message}
           </output>

@@ -27,8 +27,8 @@ export function IdentityPasswords({
       <h1 id="identity-title">{hash ? 'Hash password' : 'Verify password'}</h1>
       <p className="description">
         {hash
-          ? 'Create a salted ASP.NET Identity hash locally.'
-          : 'Verify an Identity V2/V3 hash as you type.'}
+          ? 'ASP.NET Identity · salted V3 hashes.'
+          : 'ASP.NET Identity V2/V3 · verification updates as you type.'}
       </p>
       <FieldGroup>
         <Field data-disabled={hash && busy}>

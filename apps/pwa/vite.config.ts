@@ -14,7 +14,7 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png'],
       manifest: {
-        name: 'Swiss — Local developer tools',
+        name: 'swiss - Local Dev Tools',
         short_name: 'Swiss',
         description:
           'Local Base64, OCR, Identity passwords and secure secret generators.',

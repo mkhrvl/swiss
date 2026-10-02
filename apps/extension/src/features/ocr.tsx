@@ -40,10 +40,9 @@ export function Ocr() {
         }
       }}
     >
-      <h1 id="ocr-title">Extract text</h1>
-      <p className="description">
-        English text from an image or page capture. Processed on your device.
-      </p>
+      <h1 id="ocr-title" className="mb-6">
+        Extract text
+      </h1>
       <FieldGroup className="mb-6">
         <Field>
           <FieldLabel htmlFor="image-input">Choose image</FieldLabel>

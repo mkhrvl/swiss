@@ -16,11 +16,9 @@ export function Base64() {
   }
   return (
     <section aria-labelledby="base64-title">
-      <h1 id="base64-title">Decode Base64</h1>
-      <p className="description">
-        Turn encoded data into readable text. Binary data appears as lowercase
-        hex.
-      </p>
+      <h1 id="base64-title" className="mb-6">
+        Decode Base64
+      </h1>
       <FieldGroup>
         <Field data-invalid={!result.ok}>
           <div className="flex items-center justify-between gap-3 flex-wrap">
