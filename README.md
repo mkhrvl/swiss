@@ -1,13 +1,38 @@
-# Swiss
+<p align="center">
+  <img src="apps/pwa/public/icon-192.png" alt="Swiss logo" width="80" height="80" />
+</p>
+
+<h1 align="center">Swiss</h1>
+
+<p align="center">
+  <strong>Local Dev Tools</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/processing-local-90d9ba?style=flat-square&amp;labelColor=15181d" alt="Processing: local" />
+  <img src="https://img.shields.io/badge/hosts-PWA%20%2B%20extension-90d9ba?style=flat-square&amp;labelColor=15181d" alt="Hosts: PWA and extension" />
+  <img src="https://img.shields.io/badge/browsers-Chromium%20%2B%20Firefox-90d9ba?style=flat-square&amp;labelColor=15181d" alt="Browsers: Chromium and Firefox" />
+</p>
+
+<p align="center">
+  <a href="docs/development.md">Get started</a> &middot;
+  <a href="docs/tools.md">Tool guide</a> &middot;
+  <a href="ARCHITECTURE.md">Architecture</a>
+</p>
 
 Swiss (as in Swiss Army knife) is a local developer toolbox for decoding data, extracting text from images, working with password hashes, and generating secrets. All processing runs on your device. Inputs and results stay in memory for the lifetime of an open workspace.
 
 ## What you can do
 
-- Decode Base64.
-- Extract English text from images with OCR, including a selected region.
-- Generate and verify ASP.NET Identity and bcrypt password hashes.
-- Generate random API keys, JWT HMAC signing keys, and passwords.
+| Tool                   | What it does                                           |
+| ---------------------- | ------------------------------------------------------ |
+| **Base64**             | Decode Base64 data.                                    |
+| **OCR**                | Extract English text from images or a selected region. |
+| **Identity passwords** | Generate and verify ASP.NET Identity password hashes.  |
+| **Bcrypt passwords**   | Generate and verify bcrypt hashes with cost guidance.  |
+| **API keys**           | Generate random tokens in Base64url, Base64, or Hex.   |
+| **JWT signing keys**   | Generate HMAC keys for HS256, HS384, and HS512.        |
+| **Random passwords**   | Choose the length and character groups.                |
 
 See [the tool guide](docs/tools.md) for defaults, limits, and usage details.
 
@@ -17,7 +42,9 @@ The **PWA** is a standalone web workspace built with React and Vite. It supports
 
 The **browser extension** is built with WXT for Chromium and Firefox-based browsers, including Zen. It adds a sidebar, selection decoding, and page capture for OCR, so you can use the tools while browsing.
 
-Both hosts run tools locally without a backend, analytics, or remote processing. The extension bundles OCR and Identity assets; the PWA caches them on first use for later offline sessions. Closing a workspace clears its inputs and results.
+> **Your workspace stays local.** Both hosts process inputs on your device, without a backend, analytics, or remote processing. Closing a workspace clears its inputs and results.
+
+The extension bundles OCR and Identity assets; the PWA caches them on first use for later offline sessions.
 
 ## How the repository is organized
 
