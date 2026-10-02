@@ -1,6 +1,6 @@
 # Repository guidance
 
-Before changing app code, shared libraries, tests, or build configuration, read [the web conventions](docs/web.md). Use [the README](README.md) for run, verification, and distribution commands.
+Before changing app code, shared libraries, tests, or build configuration, read [the web conventions](docs/web.md). Use [the development guide](docs/development.md) for run, verification, and distribution commands.
 
 ## Subagents
 
