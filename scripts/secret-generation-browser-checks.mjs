@@ -51,10 +51,14 @@ export async function secretGenerationUiChecks() {
   const status = () =>
     document.querySelector('#generator-feedback')?.textContent;
   const generate = async (label) => {
-    const previous = secret().value;
+    const previous = values();
     button(label, document.querySelector('section')).click();
     await new Promise((resolve) => setTimeout(resolve, 0));
-    await wait(() => secret().value !== '' && secret().value !== previous);
+    await wait(() =>
+      values().every(
+        (value, index) => value !== '' && value !== previous[index],
+      ),
+    );
     assert(
       values().length === 5 && values().every((value) => value !== ''),
       'Generator did not produce five results',
@@ -75,6 +79,18 @@ export async function secretGenerationUiChecks() {
       'Generator repeated the workspace note',
     );
     return secret().value;
+  };
+  const changeAndWait = async (change, matches) => {
+    const previous = values();
+    change();
+    await wait(
+      () =>
+        values().length === 5 &&
+        values().every(
+          (value, index) => value !== previous[index] && matches(value),
+        ),
+    );
+    assert(status() === '', 'Valid option change left an error');
   };
   const fits = () =>
     assert(
@@ -107,15 +123,16 @@ export async function secretGenerationUiChecks() {
   );
   const jwt = await generate('Generate JWT signing key');
   assert(atob(jwt).length === 32, 'Incorrect default JWT signing key size');
-  button('HS512').click();
-  await wait(() => secret().value === '');
-  button('Hex').click();
-  await wait(() => button('Hex').getAttribute('data-state') === 'on');
-  const hex = await generate('Generate JWT signing key');
-  assert(/^[a-f0-9]{128}$/.test(hex), 'HS512/Hex selection was not applied');
+  await changeAndWait(
+    () => button('HS512').click(),
+    (value) => value !== '' && atob(value).length === 64,
+  );
+  await changeAndWait(
+    () => button('Hex').click(),
+    (value) => /^[a-f0-9]{128}$/.test(value),
+  );
+  const jwtBatch = values();
   fits();
-  button('Clear').click();
-  await wait(() => secret().value === '');
   await navigate('Generate API key');
   assert(
     values().every((value, index) => value === firstBatch[index]) &&
@@ -124,14 +141,51 @@ export async function secretGenerationUiChecks() {
   );
   await navigate('Generate JWT signing key');
   assert(
-    values().every((value) => value === ''),
-    'Returning to a cleared generator refilled it',
+    values().every((value, index) => value === jwtBatch[index]),
+    'Returning to JWT changed its current results',
   );
   await navigate('Generate API key');
   const second = await generate('Generate API key');
   assert(
     first !== second && secret().type === 'text',
     'Regeneration must replace the visible secret',
+  );
+  const byteInput = document.querySelector('#generator-length');
+  assert(
+    byteInput.getAttribute('role') === 'combobox',
+    'Byte presets are not an editable combobox',
+  );
+  button('Show presets').click();
+  await wait(() => document.querySelectorAll('[role="option"]').length === 8);
+  const presets = [...document.querySelectorAll('[role="option"]')];
+  assert(
+    presets.every(
+      (item, index) => item.textContent.trim() === `${(index + 1) * 16} bytes`,
+    ),
+    'Byte presets are not multiples of 16 from 16 to 128',
+  );
+  fits();
+  await changeAndWait(
+    () => presets[2].click(),
+    (value) => /^[A-Za-z0-9_-]{64}$/.test(value),
+  );
+  assert(
+    byteInput.value === '48',
+    'Selecting a preset did not update the byte input',
+  );
+  await changeAndWait(
+    () => input('35'),
+    (value) => /^[A-Za-z0-9_-]{47}$/.test(value),
+  );
+  byteInput.focus();
+  button('Generate API key', document.querySelector('section')).focus();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert(byteInput.value === '35', 'Blur discarded a custom byte count');
+  await navigate('Generate JWT signing key');
+  await navigate('Generate API key');
+  assert(
+    document.querySelector('#generator-length').value === '35',
+    'Navigation discarded a custom byte count',
   );
   const before = values();
   button('Regenerate API key 3').click();
@@ -154,7 +208,6 @@ export async function secretGenerationUiChecks() {
     await wait(() => button('Copy API key 1').textContent === 'COPY');
   input('15');
   await wait(() => secret().value === '');
-  button('Generate API key', document.querySelector('section')).click();
   await wait(
     () => status() === 'Choose a whole number from 16 to 128 random bytes.',
   );
@@ -162,22 +215,22 @@ export async function secretGenerationUiChecks() {
     values().every((value) => value === ''),
     'Invalid byte count left old secrets',
   );
-  input('64');
-  await wait(() => document.querySelector('#generator-length').value === '64');
-  button('Hex').click();
-  await wait(() => button('Hex').getAttribute('data-state') === 'on');
-  assert(
-    /^[a-f0-9]{128}$/.test(await generate('Generate API key')),
-    'API options were not applied',
+  await changeAndWait(
+    () => input('64'),
+    (value) => /^[A-Za-z0-9_-]{86}$/.test(value),
   );
-  button('Clear').click();
-  await wait(() => secret().value === '');
+  await changeAndWait(
+    () => button('Hex').click(),
+    (value) => /^[a-f0-9]{128}$/.test(value),
+  );
   await navigate('Generate password');
   assert(
     document.querySelector('#generator-length').value === '20',
     'Incorrect password default length',
   );
-  await generate('Generate password');
+  await wait(
+    () => values().length === 5 && values().every((value) => value !== ''),
+  );
   assert(
     values().every(
       (password) =>
@@ -189,41 +242,66 @@ export async function secretGenerationUiChecks() {
     ),
     'Password missing selected types',
   );
-  for (const type of ['lowercase', 'digits', 'symbols']) {
-    document.querySelector(`#characters-${type}`).click();
-    await wait(
-      () =>
-        document
-          .querySelector(`#characters-${type}`)
-          .getAttribute('data-state') === 'unchecked',
+  const slider = document.querySelector('[role="slider"]');
+  assert(
+    slider?.getAttribute('aria-labelledby') === 'password-length-label' &&
+      slider.getAttribute('aria-valuenow') === '20',
+    'Password slider is missing its label or default value',
+  );
+  const sliderKey = (key) => {
+    slider.focus();
+    slider.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+  };
+  for (const [key, length] of [
+    ['ArrowRight', 21],
+    ['Home', 8],
+    ['End', 128],
+  ]) {
+    await changeAndWait(
+      () => sliderKey(key),
+      (value) => value.length === length,
+    );
+    assert(
+      document.querySelector('#generator-length').value === String(length) &&
+        slider.getAttribute('aria-valuenow') === String(length),
+      'Slider and numeric length input are out of sync',
     );
   }
-  input('16');
-  await wait(() => document.querySelector('#generator-length').value === '16');
+  await changeAndWait(
+    () => input('20'),
+    (value) => value.length === 20,
+  );
   assert(
-    /^[A-Z]{16}$/.test(await generate('Generate password')),
-    'Password option selection failed',
+    slider.getAttribute('aria-valuenow') === '20',
+    'Numeric length did not update the slider',
+  );
+  for (const type of ['lowercase', 'digits', 'symbols']) {
+    const removedTypes = {
+      lowercase: /[a-z]/,
+      digits: /[0-9]/,
+      symbols: /[^A-Za-z0-9]/,
+    };
+    await changeAndWait(
+      () => document.querySelector(`#characters-${type}`).click(),
+      (value) => value.length === 20 && !removedTypes[type].test(value),
+    );
+  }
+  await changeAndWait(
+    () => input('16'),
+    (value) => /^[A-Z]{16}$/.test(value),
   );
   document.querySelector('#characters-uppercase').click();
   await wait(() => secret().value === '');
-  button('Generate password', document.querySelector('section')).click();
   await wait(() => status() === 'Select at least one character type.');
-  document.querySelector('#characters-digits').click();
-  await wait(
-    () =>
-      document
-        .querySelector('#characters-digits')
-        .getAttribute('data-state') === 'checked',
+  await changeAndWait(
+    () => document.querySelector('#characters-digits').click(),
+    (value) => /^[0-9]{16}$/.test(value),
   );
-  await generate('Generate password');
-  button('Clear').click();
-  await wait(() => secret().value === '' && secret().type === 'text');
   fits();
   assert(
-    values().every((value) => value === ''),
-    'Clear retained generated results',
+    !button('Clear', document.querySelector('section')),
+    'Generator still has a Clear button',
   );
-  await generate('Generate password');
   const descriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
   let write;
   Object.defineProperty(navigator, 'clipboard', {
@@ -280,15 +358,36 @@ export async function secretGenerationUiChecks() {
     await wait(
       () => button('Copy Generated password 4').textContent === 'COPIED',
     );
-    button('Clear').click();
-    await wait(() => values().every((value) => value === ''));
-    assert(
-      button('Copy Generated password 4').textContent === 'COPY',
-      'Clear retained copied feedback',
+    await changeAndWait(
+      () => input('17'),
+      (value) => /^[0-9]{17}$/.test(value),
     );
     assert(
-      button('Copy Generated password 4').disabled,
-      'Empty result is copyable',
+      button('Copy Generated password 4').textContent === 'COPY',
+      'Option change retained copied feedback',
+    );
+    write = () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      });
+    button('Copy Generated password 1').click();
+    await changeAndWait(
+      () => input('18'),
+      (value) => /^[0-9]{18}$/.test(value),
+    );
+    finish();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert(
+      button('Copy Generated password 1').textContent === 'COPY',
+      'Stale copy marked new options as copied',
+    );
+    await changeAndWait(
+      () => input('19'),
+      (value) => /^[0-9]{19}$/.test(value),
+    );
+    await changeAndWait(
+      () => input('20'),
+      (value) => /^[0-9]{20}$/.test(value),
     );
   } finally {
     if (descriptor) Object.defineProperty(navigator, 'clipboard', descriptor);
@@ -300,9 +399,10 @@ export async function secretGenerationUiChecks() {
   );
   return {
     checks: [
-      'Automatic first-open API/JWT/password generation, option changes and validation',
-      'Five visible results, independent inline regeneration, timed copy feedback and clear',
+      'Automatic first-open generation and regeneration on every option change',
+      'Five visible results, full/inline regeneration, validation and timed copy feedback',
       'Independent tool state, navigation, narrow layout and no workspace persistence',
+      'Eight byte presets, custom byte counts and accessible synchronized password slider',
     ],
   };
 }

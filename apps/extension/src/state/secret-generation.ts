@@ -32,9 +32,12 @@ type GeneratedSecret = { value: string; copied: boolean };
 function emptyResults(): GeneratedSecret[] {
   return resultIndices.map(() => ({ value: '', copied: false }));
 }
-function useGeneratedSecrets(factory: () => ReturnType<typeof generateApiKey>) {
+function useGeneratedSecrets(
+  factory: () => ReturnType<typeof generateApiKey>,
+  options: object,
+) {
   const [results, setResults] = useState(emptyResults);
-  const initialized = useRef(false);
+  const generatedOptions = useRef<object | undefined>(undefined);
   const [message, setMessage] = useState('');
   const [error, setError] = useState<SecretGenerationError['code']>();
   const versions = useRef(resultIndices.map(() => 0));
@@ -71,7 +74,7 @@ function useGeneratedSecrets(factory: () => ReturnType<typeof generateApiKey>) {
     reset(resultIndices);
   }
   function generate(index?: number) {
-    initialized.current = true;
+    generatedOptions.current = options;
     const indices = index === undefined ? resultIndices : [index];
     reset(indices);
     try {
@@ -136,7 +139,7 @@ function useGeneratedSecrets(factory: () => ReturnType<typeof generateApiKey>) {
     }
   }
   function ensureGenerated() {
-    if (!initialized.current) generate();
+    if (generatedOptions.current !== options) generate();
   }
   return { results, message, error, clear, generate, ensureGenerated, copy };
 }
@@ -155,17 +158,21 @@ export function useSecretGenerators() {
       characterTypes: ['lowercase', 'uppercase', 'digits', 'symbols'],
     },
   );
-  const api = useGeneratedSecrets(() =>
-    generateApiKey(Number(apiOptions.bytes), apiOptions.encoding),
+  const api = useGeneratedSecrets(
+    () => generateApiKey(Number(apiOptions.bytes), apiOptions.encoding),
+    apiOptions,
   );
-  const jwt = useGeneratedSecrets(() =>
-    generateJwtSigningKey(jwtOptions.algorithm, jwtOptions.encoding),
+  const jwt = useGeneratedSecrets(
+    () => generateJwtSigningKey(jwtOptions.algorithm, jwtOptions.encoding),
+    jwtOptions,
   );
-  const password = useGeneratedSecrets(() =>
-    generatePassword({
-      length: Number(passwordOptions.length),
-      characterTypes: passwordOptions.characterTypes,
-    }),
+  const password = useGeneratedSecrets(
+    () =>
+      generatePassword({
+        length: Number(passwordOptions.length),
+        characterTypes: passwordOptions.characterTypes,
+      }),
+    passwordOptions,
   );
   return {
     api: {
