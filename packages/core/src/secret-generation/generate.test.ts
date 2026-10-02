@@ -106,7 +106,7 @@ describe('password generation', () => {
     ['lowercase', /^[a-z]{128}$/],
     ['uppercase', /^[A-Z]{128}$/],
     ['digits', /^[0-9]{128}$/],
-    ['symbols', /^[!@#$%^&*()\-_=+\[\]{};:,.?/]{128}$/],
+    ['symbols', /^[!@#$%^&*()\-_=+[\]{};:,.?/]{128}$/],
   ] as const)('uses only the selected %s type', (type, pattern) => {
     expect(
       value(generatePassword({ length: 128, characterTypes: [type] })),

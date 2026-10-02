@@ -39,6 +39,13 @@ const toolGroups = [
     ],
   },
   {
+    label: 'Bcrypt',
+    tools: [
+      { id: 'bcrypt-hash', label: 'Generate bcrypt hash', icon: Hash },
+      { id: 'bcrypt-verify', label: 'Verify bcrypt hash', icon: ShieldCheck },
+    ],
+  },
+  {
     label: 'Generators',
     tools: [
       { id: 'api-key', label: 'Generate API key', icon: KeyRound },

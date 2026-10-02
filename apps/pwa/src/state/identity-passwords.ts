@@ -28,12 +28,10 @@ export function useIdentityPasswords() {
   const [generatedHash, setGeneratedHash] = useState('');
   const [hashMessage, setHashMessage] = useState('');
   const [hashBusy, setHashBusy] = useState(false);
-  const [showHashPassword, setShowHashPassword] = useState(false);
   const [verifyPassword, setVerifyPassword] = useState('');
   const [storedHash, setStoredHash] = useState('');
   const [verifyMessage, setVerifyMessage] = useState('');
   const [verifyBusy, setVerifyBusy] = useState(false);
-  const [showVerifyPassword, setShowVerifyPassword] = useState(false);
   const [paused, setPaused] = useState(false);
   const assetsReady = useRef(false);
   const engine = useRef<ReturnType<typeof createIdentityEngine>>(undefined);
@@ -191,8 +189,6 @@ export function useIdentityPasswords() {
     generatedHash,
     hashMessage,
     hashBusy,
-    showHashPassword,
-    setShowHashPassword,
     generate,
     verifyPassword,
     changeVerifyPassword,
@@ -200,8 +196,6 @@ export function useIdentityPasswords() {
     changeStoredHash,
     verifyMessage,
     verifyBusy,
-    showVerifyPassword,
-    setShowVerifyPassword,
     cancelHash: () => {
       hashing.current?.abort();
       setHashMessage('Hashing cancelled.');
@@ -214,12 +208,10 @@ export function useIdentityPasswords() {
     },
     clearHash: () => {
       changeHashPassword('');
-      setShowHashPassword(false);
     },
     clearVerify: () => {
       changeVerifyPassword('');
       changeStoredHash('');
-      setShowVerifyPassword(false);
     },
   };
 }

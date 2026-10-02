@@ -3,16 +3,16 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from '@swiss/ui/components/sidebar';
-import { Separator } from '@swiss/ui/components/separator';
 import { Alert, AlertDescription } from '@swiss/ui/components/alert';
 import { ToolSidebar } from './tool-sidebar';
 import { Button } from '@swiss/ui/components/button';
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import { browser } from 'wxt/browser';
 import { Base64 } from './features/base64';
 import { Ocr } from './features/ocr';
 import { IdentityPasswords } from './features/identity-passwords';
 import { SecretGenerators } from './features/secret-generators';
+import { BcryptPasswords } from './features/bcrypt-passwords';
 import { useWorkspace } from './state/workspace';
 import { subscribeToInput } from './platform/input';
 import type { WorkspaceInput } from './platform/messages';
@@ -28,6 +28,12 @@ export function App() {
     else if (input.tool === 'identity-verify') {
       state.identity.changeVerifyPassword(input.password);
       state.identity.changeStoredHash(input.hash);
+    } else if (input.tool === 'bcrypt-hash') {
+      state.bcrypt.changeHashPassword(input.password);
+      state.bcrypt.changeCost(input.cost);
+    } else if (input.tool === 'bcrypt-verify') {
+      state.bcrypt.changeVerifyPassword(input.password);
+      state.bcrypt.changeStoredHash(input.hash);
     } else if (input.tool === 'api-key')
       state.generators.api.change(input.options);
     else if (input.tool === 'jwt-key')
@@ -40,10 +46,13 @@ export function App() {
         'Visible page capture',
       );
   }
+  const consumeTransferredInput = useEffectEvent(
+    (input: WorkspaceInput) => void consume(input),
+  );
   useEffect(() => {
     let cleanup: (() => void) | undefined;
     let disposed = false;
-    void subscribeToInput((input) => void consume(input))
+    void subscribeToInput(consumeTransferredInput)
       .then((value) => {
         if (disposed) value();
         else cleanup = value;
@@ -79,6 +88,18 @@ export function App() {
       };
     if (state.tool === 'api-key')
       input = { tool: state.tool, options: state.generators.api.options };
+    if (state.tool === 'bcrypt-hash')
+      input = {
+        tool: state.tool,
+        password: state.bcrypt.hashPassword,
+        cost: state.bcrypt.cost,
+      };
+    if (state.tool === 'bcrypt-verify')
+      input = {
+        tool: state.tool,
+        password: state.bcrypt.verifyPassword,
+        hash: state.bcrypt.storedHash,
+      };
     if (state.tool === 'jwt-key')
       input = { tool: state.tool, options: state.generators.jwt.options };
     if (state.tool === 'random-password')
@@ -105,6 +126,12 @@ export function App() {
     toolContent = <Base64 />;
   } else if (state.tool === 'ocr') {
     toolContent = <Ocr />;
+  } else if (state.tool === 'bcrypt-hash' || state.tool === 'bcrypt-verify') {
+    toolContent = (
+      <BcryptPasswords
+        operation={state.tool === 'bcrypt-hash' ? 'hash' : 'verify'}
+      />
+    );
   } else if (
     state.tool === 'api-key' ||
     state.tool === 'jwt-key' ||
@@ -121,10 +148,6 @@ export function App() {
       <SidebarInset className="min-w-0">
         <header className="workspace-header">
           <SidebarTrigger />
-          <Separator
-            orientation="vertical"
-            className="data-[orientation=vertical]:h-5"
-          />
           <strong>swiss</strong>
           <div className="toolbar">
             {isSidebar && (

@@ -1,6 +1,6 @@
 # Swiss
 
-A local developer toolbox with a React PWA, a WXT browser extension, and a feature-first core. Both web hosts support Base64 decoding, English OCR, ASP.NET Identity password hashing and verification, API key generation, JWT HMAC signing keys, and random passwords. Identity uses the shared C# library through a local WebAssembly worker.
+A local developer toolbox with a React PWA, a WXT browser extension, and a feature-first core. Both web hosts support Base64 decoding, English OCR, ASP.NET Identity and bcrypt password hashing and verification, API key generation, JWT HMAC signing keys, and random passwords. Identity uses the shared C# library through a local WebAssembly worker.
 
 ## Web hosts
 
@@ -19,21 +19,25 @@ After adding or updating workspace dependencies, stop the development server, ru
 To launch development in Zen, configure `webExt.binaries.firefox` in `apps/extension/wxt.config.ts` to your Zen executable or load the Firefox production build temporarily as described below.
 
 ```sh
-pnpm verify             # Formatting, TypeScript/C# tests, all production builds
+pnpm lint               # ESLint: TypeScript, React Hooks, accessibility, JS scripts
+pnpm lint:fix           # Apply available safe lint fixes; review the diff
+pnpm verify             # Formatting, lint, types, TypeScript/C# tests, all builds
 pnpm --filter @swiss/pwa preview
 ```
 
 The PWA builds to `apps/pwa/dist`. Serve it from the root of an HTTPS origin (localhost also works). Install it through a supporting browser's install control. Firefox and Zen can use the web app and its offline behavior even where PWA installation is unavailable. Updates show a reload button and warn that reloading clears the workspace.
 
+ESLint runs from the repository root with `eslint.config.mjs`; Prettier owns formatting. VS Code recommends ESLint and SonarQube for IDE. See [code-quality checks](docs/code-quality.md) for editor checks and the optional SonarQube Server/Cloud setup for both TypeScript and C#.
+
 Load `apps/extension/.output/chrome-mv3` with **Load unpacked** on `chrome://extensions`. For Firefox or Zen, open `about:debugging#/runtime/this-firefox`, select **Load Temporary Add-on**, and choose `apps/extension/.output/firefox-mv2/manifest.json`. Temporary add-ons disappear when the browser closes; signed distribution is a later release step. If WXT cannot launch a browser from WSL, keep `pnpm dev:firefox` running and load `apps/extension/.output/firefox-mv2-dev/manifest.json` manually in Firefox or Zen; that development build connects to the running server.
 
-Click the Swiss toolbar button to open the side panel/sidebar. Use the selection context menu to decode Base64, the page context menu or **Alt+Shift+O** to capture the visible page for OCR, or **Capture page** in the sidebar after granting access by clicking the toolbar button on that page. Restricted browser pages cannot be captured. **Open in tab** transfers the current tool's inputs once into an independent workspace, including Identity password/hash inputs. It does not synchronize later edits or transfer results, crop selection, or password visibility. Transfer data stays in background memory for at most 60 seconds; URLs contain only a one-time token.
+Click the Swiss toolbar button to open the side panel/sidebar. Use the selection context menu to decode Base64, the page context menu or **Alt+Shift+O** to capture the visible page for OCR, or **Capture page** in the sidebar after granting access by clicking the toolbar button on that page. Restricted browser pages cannot be captured. **Open in tab** transfers the current tool's inputs once into an independent workspace, including Identity password/hash inputs. It does not synchronize later edits or transfer results or crop selection. Transfer data stays in background memory for at most 60 seconds; URLs contain only a one-time token.
 
 OCR loads automatically when you choose **Extract text**. The PWA caches about 15 MB of local assets on first use; the extension bundles the engine and pinned English model, including about 3 MB of model data, so its first operation works offline. The model's SHA-256 is checked before use. Recognition runs locally, accepts PNG/JPEG/WebP up to 20 MB and 20 million pixels, and supports a region in source-image pixels. Cancel stops loading or terminates the OCR worker; a later job retries automatically. The PWA reloads missing or damaged model data when online.
 
 Each open workspace keeps its inputs, images, results, and jobs in memory across tool navigation. Closing it clears that state. Offline assets are the only persistent data in this milestone. There is no backend, analytics, or remote recognition service.
 
-Choose **Hash password** to generate a salted Identity V3 hash, or **Verify password** to check an existing V2/V3 hash after a 250 ms typing pause. Passwords start masked; the eye button toggles visibility and **Clear** masks and erases the fields. Password spaces and Unicode are preserved exactly. Legacy matches show upgrade advice. Hashes over 4,096 encoded characters, over 1,000,000 PBKDF2 iterations, or over 64 subkey bytes are rejected before expensive work. **Cancel** stops the dedicated worker; the next operation initializes a fresh runtime. Hashing and verification run locally through Microsoft's `PasswordHasher<TUser>`.
+Choose **Hash password** to generate a salted Identity V3 hash, or **Verify password** to check an existing V2/V3 hash after a 250 ms typing pause. Passwords are visible, and **Clear** erases the fields. Password spaces and Unicode are preserved exactly. Legacy matches show upgrade advice. Hashes over 4,096 encoded characters, over 1,000,000 PBKDF2 iterations, or over 64 subkey bytes are rejected before expensive work. **Cancel** stops the dedicated worker; the next operation initializes a fresh runtime. Hashing and verification run locally through Microsoft's `PasswordHasher<TUser>`.
 
 Identity loads automatically on the first hash or verification. The extension bundles its runtime; the PWA caches about 7.3 MB on first use and verifies cached files before using them in a new workspace. Missing or damaged files are replaced automatically when online. After a tool's first successful use, its cached assets support offline reloads; browser storage eviction requires going online for that tool again. Deploy the `.wasm` files with `application/wasm` and the `.js` files with a JavaScript MIME type.
 
@@ -63,6 +67,14 @@ Both web hosts use shadcn/ui primitives from `packages/ui`, with Tailwind CSS v4
 
 See [web conventions](docs/web.md), [the architecture decision](docs/adr/0001-web-hosts-feature-core.md), and [verification evidence](docs/verification/web-milestone.md). Browser-store submission, native browser permission prompts, toolbar/sidebar gestures, context menus, and shortcut customization still require interactive release QA.
 
+## Bcrypt passwords
+
+The **Bcrypt** group contains **Generate bcrypt hash** and **Verify bcrypt hash**. Cost uses a synchronized slider/numeric input from 4–20, default 12; bcrypt's standard minimum is 4. Costs 4–9 show **Low**, 10–11 **Acceptable**, 12–14 **Recommended starting range**, and 15–20 **Very expensive**. These are starting points based on [OWASP's minimum of 10](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#bcrypt); benchmark on your deployment hardware. Each increment doubles the work.
+
+Generation produces one salted `$2b$` hash. Verification accepts `$2a$`, `$2b$` and `$2y$` and uses the cost embedded in the hash; costs above 20 are rejected before processing. Both operations run only when their button is pressed and can be cancelled, including at cost 20. Changing an input aborts its active job and clears stale results. Passwords preserve spaces and Unicode, are visible, and are limited to 72 UTF-8 bytes for both operations; longer input is rejected without truncation. Clear erases that tool's fields; the chosen cost is retained. The output has inline COPY/COPIED feedback.
+
+The bundled bcryptjs worker starts lazily, uses Web Crypto for salts and works offline without asset downloads. Tool navigation preserves independent inputs/results in memory. Extension **Open in tab** transfers only password/hash inputs and cost, with passwords visible; generated hashes and verification results are excluded.
+
 ## Shared C# library
 
 Identity's business library, browser interop executable, and native tests live under `packages/core/src/identity-passwords/dotnet/`. `Swiss.slnx` contains these three projects. NuGet versions remain centrally managed in `Directory.Packages.props`.
@@ -81,4 +93,4 @@ Keep processing and business rules in a feature-local module under `packages/cor
 
 ## Dependency licenses
 
-Microsoft's Identity package and CSharpier are MIT licensed. Lucide icons are ISC licensed. xUnit and AwesomeAssertions are Apache-2.0 licensed. Copied shadcn/ui primitives retain their MIT notice in `packages/ui/LICENSE.md`. Bundled Tesseract.js/core are Apache-2.0 licensed and the English model package is MIT licensed. Retain applicable notices when distributing the web hosts.
+bcryptjs is BSD-3-Clause licensed. Microsoft's Identity package and CSharpier are MIT licensed. Lucide icons are ISC licensed. xUnit and AwesomeAssertions are Apache-2.0 licensed. Copied shadcn/ui primitives retain their MIT notice in `packages/ui/LICENSE.md`. Bundled Tesseract.js/core are Apache-2.0 licensed and the English model package is MIT licensed. Retain applicable notices when distributing the web hosts.

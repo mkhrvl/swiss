@@ -1,3 +1,4 @@
+import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { identityUiChecks } from '../../../../scripts/identity-browser-checks.mjs';
@@ -61,6 +62,7 @@ try {
   const identity = await page.evaluate(identityUiChecks, {
     fixtures,
   });
+  const bcrypt = await page.evaluate(bcryptUiChecks);
   const generators = await page.evaluate(secretGenerationUiChecks);
   await navigateTool(page, 'Generate JWT signing key');
   await page.screenshot({
@@ -85,7 +87,7 @@ try {
     await identityTab
       .getByLabel('Password', { exact: true })
       .getAttribute('type'),
-    'password',
+    'text',
   );
   assert(!identityTab.url().includes('synthetic'));
   await page.getByLabel('Password', { exact: true }).fill('independent edit');
@@ -94,6 +96,73 @@ try {
     'synthetic transfer input',
   );
   await identityTab.close();
+  await navigateTool(page, 'Generate bcrypt hash');
+  await page
+    .getByLabel('Password', { exact: true })
+    .fill('synthetic bcrypt transfer');
+  await page.getByRole('spinbutton', { name: 'Cost factor' }).fill('4');
+  await page
+    .getByRole('button', { name: 'Generate bcrypt hash', exact: true })
+    .last()
+    .click();
+  await page.waitForFunction(() =>
+    document.querySelector('#bcrypt-output')?.value.startsWith('$2b$04$'),
+  );
+  const [bcryptTab] = await Promise.all([
+    browser.context.waitForEvent('page'),
+    page.getByRole('button', { name: 'Open in tab', exact: true }).click(),
+  ]);
+  await bcryptTab.waitForFunction(
+    () =>
+      document.querySelector('#bcrypt-password')?.value ===
+      'synthetic bcrypt transfer',
+  );
+  assert.equal(
+    await bcryptTab
+      .getByRole('spinbutton', { name: 'Cost factor' })
+      .inputValue(),
+    '4',
+  );
+  assert.equal(
+    await bcryptTab.getByLabel('Bcrypt hash', { exact: true }).inputValue(),
+    '',
+  );
+  assert.equal(
+    await bcryptTab
+      .getByLabel('Password', { exact: true })
+      .getAttribute('type'),
+    'text',
+  );
+  assert(!bcryptTab.url().includes('synthetic'));
+  await page.getByRole('spinbutton', { name: 'Cost factor' }).fill('12');
+  assert.equal(
+    await bcryptTab
+      .getByRole('spinbutton', { name: 'Cost factor' })
+      .inputValue(),
+    '4',
+  );
+  await bcryptTab.close();
+  await navigateTool(page, 'Verify bcrypt hash');
+  await page.getByLabel('Password', { exact: true }).fill('  café 🔐  ');
+  const bcryptFixture =
+    '$2b$04$abcdefghijklmnopqrstuuK3nEtR/OYkgNnPTl7gUVWmBqJNnKuJO';
+  await page.getByLabel('Stored bcrypt hash').fill(bcryptFixture);
+  const [bcryptVerifyTab] = await Promise.all([
+    browser.context.waitForEvent('page'),
+    page.getByRole('button', { name: 'Open in tab', exact: true }).click(),
+  ]);
+  await bcryptVerifyTab.waitForFunction(
+    () => document.querySelector('#bcrypt-password')?.value === '  café 🔐  ',
+  );
+  assert.equal(
+    await bcryptVerifyTab.getByLabel('Stored bcrypt hash').inputValue(),
+    bcryptFixture,
+  );
+  assert.equal(
+    await bcryptVerifyTab.locator('#bcrypt-feedback').textContent(),
+    '',
+  );
+  await bcryptVerifyTab.close();
   await navigateTool(page, 'Generate API key');
   await page.getByLabel('Random bytes').fill('64');
   await page
@@ -144,6 +213,7 @@ try {
   await navigateTool(page, 'English OCR');
   await ocrChecks(page, 'English OCR');
   await page.evaluate(identityUiChecks, { fixtures, verifyFirst: true });
+  await page.evaluate(bcryptUiChecks);
   await page.evaluate(secretGenerationUiChecks);
   assert.deepEqual(errors, []);
   console.log(
@@ -157,9 +227,11 @@ try {
           'Base64 and native CSP OCR',
           'One-time tab transfer and independent workspaces',
           'Generator tab transfer copies options without generated secrets',
+          'Bcrypt tab transfer preserves inputs/cost, shows passwords, and excludes results',
           'Crop, cancel and restart, invalid region',
           '320px layout',
           'Offline reload and recognition from bundled English data',
+          ...bcrypt.checks,
           ...generators.checks,
           ...identity.checks,
           'Identity hashing and verification after a fresh extension reload',

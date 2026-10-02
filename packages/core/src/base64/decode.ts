@@ -50,6 +50,8 @@ export function decodeBase64(
       fatal: true,
       ignoreBOM: true,
     }).decode(bytes);
+    // Control characters intentionally classify decoded content as binary.
+    // eslint-disable-next-line no-control-regex
     if (!/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]/.test(text)) {
       return { ok: true, value: { bytes, output: text, format: 'text' } };
     }

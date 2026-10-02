@@ -8,6 +8,8 @@ export type WorkspaceInput =
   | { tool: 'ocr'; dataUrl: string }
   | { tool: 'identity-hash'; password: string }
   | { tool: 'identity-verify'; password: string; hash: string }
+  | { tool: 'bcrypt-hash'; password: string; cost: string }
+  | { tool: 'bcrypt-verify'; password: string; hash: string }
   | { tool: 'api-key'; options: ApiKeyOptions }
   | { tool: 'jwt-key'; options: JwtKeyOptions }
   | { tool: 'random-password'; options: RandomPasswordOptions };

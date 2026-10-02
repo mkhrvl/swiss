@@ -3,7 +3,6 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from '@swiss/ui/components/sidebar';
-import { Separator } from '@swiss/ui/components/separator';
 import {
   Alert,
   AlertTitle,
@@ -16,6 +15,7 @@ import { Base64 } from '../features/base64';
 import { Ocr } from '../features/ocr';
 import { IdentityPasswords } from '../features/identity-passwords';
 import { SecretGenerators } from '../features/secret-generators';
+import { BcryptPasswords } from '../features/bcrypt-passwords';
 import { useWorkspace } from '../state/workspace';
 export function App() {
   const state = useWorkspace();
@@ -28,6 +28,12 @@ export function App() {
     toolContent = <Base64 />;
   } else if (state.tool === 'ocr') {
     toolContent = <Ocr />;
+  } else if (state.tool === 'bcrypt-hash' || state.tool === 'bcrypt-verify') {
+    toolContent = (
+      <BcryptPasswords
+        operation={state.tool === 'bcrypt-hash' ? 'hash' : 'verify'}
+      />
+    );
   } else if (
     state.tool === 'api-key' ||
     state.tool === 'jwt-key' ||
@@ -44,13 +50,6 @@ export function App() {
       <SidebarInset className="min-w-0">
         <header className="workspace-header">
           <SidebarTrigger />
-          <Separator
-            orientation="vertical"
-            className="data-[orientation=vertical]:h-5"
-          />
-          <span className="text-sm text-muted-foreground">
-            Local developer tools
-          </span>
         </header>
         <div className="workspace-content">
           {needRefresh && (
@@ -63,7 +62,8 @@ export function App() {
                   disabled={
                     state.busy ||
                     state.identity.hashBusy ||
-                    state.identity.verifyBusy
+                    state.identity.verifyBusy ||
+                    Boolean(state.bcrypt.busy)
                   }
                   onClick={() => void updateServiceWorker(true)}
                 >

@@ -71,8 +71,12 @@ export async function identityUiChecks({ fixtures, verifyFirst = false }) {
     () => !button('Hash password', document.querySelector('section')).disabled,
   );
   assert(
-    document.querySelector('#identity-password').type === 'password',
-    'Password must start masked',
+    document.querySelector('#identity-password').type === 'text',
+    'Password must be visible',
+  );
+  assert(
+    !button('Show password') && !button('Hide password'),
+    'Visibility toggles should be removed',
   );
   input('#identity-password', password);
   await wait(
@@ -106,14 +110,10 @@ export async function identityUiChecks({ fixtures, verifyFirst = false }) {
     first !== second && first.startsWith('AQ'),
     'Identity V3 must use independent salts',
   );
-  button('Show password').click();
-  await wait(
-    () => document.querySelector('#identity-password').type === 'text',
-  );
   await navigate('Verify password');
   assert(
-    document.querySelector('#identity-password').type === 'password',
-    'Verification password must start masked',
+    document.querySelector('#identity-password').type === 'text',
+    'Verification password must be visible',
   );
   input('#identity-password', password);
   input('#identity-hash', first);
@@ -134,8 +134,8 @@ export async function identityUiChecks({ fixtures, verifyFirst = false }) {
   button('Clear').click();
   await wait(() => document.querySelector('#identity-password').value === '');
   assert(
-    document.querySelector('#identity-password').type === 'password',
-    'Clear must mask password',
+    document.querySelector('#identity-password').type === 'text',
+    'Password remains visible after Clear',
   );
   assert(
     document.querySelector('#tool-output').value === '',
@@ -182,10 +182,6 @@ export async function identityUiChecks({ fixtures, verifyFirst = false }) {
   input('#identity-password', password);
   input('#identity-hash', first);
   await wait(() => status() === 'Password matches.');
-  button('Show password').click();
-  await wait(
-    () => document.querySelector('#identity-password').type === 'text',
-  );
   button('Clear').click();
   await wait(
     () =>
@@ -193,8 +189,8 @@ export async function identityUiChecks({ fixtures, verifyFirst = false }) {
       document.querySelector('#identity-hash').value === '',
   );
   assert(
-    document.querySelector('#identity-password').type === 'password',
-    'Verification Clear must mask password',
+    document.querySelector('#identity-password').type === 'text',
+    'Verification Password remains visible after Clear',
   );
   assert(
     localStorage.length === 0 && sessionStorage.length === 0,
@@ -209,7 +205,7 @@ export async function identityUiChecks({ fixtures, verifyFirst = false }) {
       'Exact password spaces and Unicode',
       'Salt independence, mismatch and malformed/unsupported input',
       'Cancellation/restart, latest-input results and navigation state',
-      'Clear erases fields and masks passwords; no workspace persistence',
+      'Visible password inputs, Clear erases fields; no workspace persistence',
     ],
   };
 }

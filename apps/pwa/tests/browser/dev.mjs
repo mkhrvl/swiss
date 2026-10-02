@@ -1,3 +1,4 @@
+import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { createServer } from 'vite';
 import { resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
@@ -33,9 +34,10 @@ try {
   await navigateTool(page, 'Extract text');
   await ocrChecks(page, 'Extract text');
   await page.evaluate(identityUiChecks, { fixtures });
+  await page.evaluate(bcryptUiChecks);
   assert.deepEqual(errors, []);
   console.log(
-    'PWA development OCR and Identity: lazy initialization, processing, cancellation and restart passed.',
+    'PWA development OCR, Identity and bcrypt: lazy initialization, processing, cancellation and restart passed.',
   );
 } catch (error) {
   if (testPage) console.error(await testPage.locator('body').innerText());

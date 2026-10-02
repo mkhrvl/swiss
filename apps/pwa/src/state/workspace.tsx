@@ -15,6 +15,7 @@ import {
 import { engineAssets, loadOcrModel } from '../platform/ocr-assets';
 import { useIdentityPasswords } from './identity-passwords';
 import { useSecretGenerators } from './secret-generation';
+import { useBcryptPasswords } from './bcrypt-passwords';
 
 const errorMessages: Record<OcrError['code'], string> = {
   'image-too-large': 'Choose an image under 20 MB and 20 million pixels.',
@@ -34,11 +35,14 @@ export type WorkspaceImage = {
 function useWorkspaceState() {
   const identity = useIdentityPasswords();
   const generators = useSecretGenerators();
+  const bcrypt = useBcryptPasswords();
   const [tool, setTool] = useState<
     | 'base64'
     | 'ocr'
     | 'identity-hash'
     | 'identity-verify'
+    | 'bcrypt-hash'
+    | 'bcrypt-verify'
     | 'api-key'
     | 'jwt-key'
     | 'random-password'
@@ -59,7 +63,7 @@ function useWorkspaceState() {
     alive.current = true;
     return () => {
       alive.current = false;
-      selection.current++;
+      selection.current += 1;
       job.current?.abort();
       engine.current?.dispose();
     };
@@ -171,6 +175,7 @@ function useWorkspaceState() {
   return {
     identity,
     generators,
+    bcrypt,
     tool,
     setTool,
     base64,

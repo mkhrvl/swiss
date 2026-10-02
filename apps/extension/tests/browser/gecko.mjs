@@ -1,3 +1,4 @@
+import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
 // Stock Firefox/Zen use WebDriver BiDi; Playwright's patched Firefox is not Zen.
 import { spawn } from 'node:child_process';
@@ -285,6 +286,12 @@ try {
     ),
   );
   result.checks.push(...identity.checks);
+  const bcrypt = JSON.parse(
+    await evaluate(
+      `(async () => JSON.stringify(await (${bcryptUiChecks.toString()})()))()`,
+    ),
+  );
+  result.checks.push(...bcrypt.checks);
   const generators = JSON.parse(
     await evaluate(
       `(async () => JSON.stringify(await (${secretGenerationUiChecks.toString()})()))()`,
@@ -329,6 +336,7 @@ try {
   await evaluate(
     `(async () => JSON.stringify(await (${identityUiChecks.toString()})(${JSON.stringify({ fixtures, verifyFirst: true })})))()`,
   );
+  await evaluate(`(${bcryptUiChecks.toString()})()`);
   await evaluate(`(${secretGenerationUiChecks.toString()})()`);
   const evidence = {
     browser: browserName,

@@ -1,3 +1,4 @@
+import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { identityUiChecks } from '../../../../scripts/identity-browser-checks.mjs';
@@ -58,6 +59,7 @@ try {
   const identity = await page.evaluate(identityUiChecks, {
     fixtures,
   });
+  const bcrypt = await page.evaluate(bcryptUiChecks);
   const generators = await page.evaluate(secretGenerationUiChecks);
   await navigateTool(page, 'Generate JWT signing key');
   await page.screenshot({
@@ -132,6 +134,7 @@ try {
   await navigateTool(page, 'Extract text');
   await ocrChecks(page, 'Extract text');
   await page.evaluate(identityUiChecks, { fixtures, verifyFirst: true });
+  await page.evaluate(bcryptUiChecks);
   await page.evaluate(secretGenerationUiChecks);
   const storage = await page.evaluate(async () => ({
     local: localStorage.length,
@@ -160,6 +163,7 @@ try {
           '360px and desktop layouts',
           'Fresh offline reload and OCR with server stopped and HTTP cache disabled',
           'No workspace persistence',
+          ...bcrypt.checks,
           ...generators.checks,
           ...identity.checks,
           'Identity hashing and verification after a fresh offline reload',

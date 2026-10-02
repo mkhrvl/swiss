@@ -46,11 +46,13 @@ function useGeneratedSecrets(
   const alive = useRef(true);
   useEffect(() => {
     alive.current = true;
+    const resultVersions = versions.current;
+    const feedbackTimers = timers.current;
     return () => {
       alive.current = false;
       for (const index of resultIndices) {
-        versions.current[index] = (versions.current[index] ?? 0) + 1;
-        clearTimeout(timers.current[index]);
+        resultVersions[index] = (resultVersions[index] ?? 0) + 1;
+        clearTimeout(feedbackTimers[index]);
       }
     };
   }, []);

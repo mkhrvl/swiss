@@ -2,9 +2,12 @@ node_modules/
 artifacts/
 **/public/ocr/
 **/public/identity/
+**/public/licenses/bcryptjs.txt
 **/bin/
 **/obj/
 **/dist/
 **/.output/
 **/.wxt/
 pnpm-lock.yaml
+.sonarqube/
+.scannerwork/

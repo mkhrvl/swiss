@@ -6,7 +6,9 @@ import { IDENTITY_ASSETS } from '../../packages/core/src/identity-passwords/asse
 const assetCacheName = 'swiss-tesseract-7.0.0-eng-1.0.0';
 export default defineConfig({
   // Prebundle the lazy worker dependency so its first use cannot reload the UI.
-  optimizeDeps: { include: ['@swiss/core > tesseract.js'] },
+  optimizeDeps: {
+    include: ['@swiss/core > tesseract.js', '@swiss/core > bcryptjs'],
+  },
   plugins: [
     react(),
     tailwindcss(),

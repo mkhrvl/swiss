@@ -4,6 +4,11 @@ import { mkdir, copyFile, readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 
 const require = createRequire(resolve('packages/core/package.json'));
+const bcryptLicense = resolve(
+  dirname(require.resolve('bcryptjs')),
+  '..',
+  'LICENSE',
+);
 const tesseract = dirname(require.resolve('tesseract.js/package.json'));
 const core = dirname(
   createRequire(join(tesseract, 'package.json')).resolve(
@@ -23,6 +28,9 @@ if (
 )
   throw new Error('English model checksum changed');
 for (const host of ['pwa', 'extension']) {
+  const licenses = resolve(`apps/${host}/public/licenses`);
+  await mkdir(licenses, { recursive: true });
+  await copyFile(bcryptLicense, join(licenses, 'bcryptjs.txt'));
   const destination = resolve(
     `apps/${host}/public/ocr/tesseract-7.0.0-eng-1.0.0`,
   );
@@ -45,5 +53,5 @@ for (const host of ['pwa', 'extension']) {
   await copyFile(model, join(destination, 'eng.traineddata.gz'));
 }
 console.log(
-  'Prepared locally bundled OCR executable assets and English data in both hosts.',
+  'Prepared bundled OCR assets, English data and bcrypt license notices in both hosts.',
 );

@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./bcrypt-passwords": "./src/bcrypt-passwords/index.ts",
+    "./bcrypt-passwords/worker": "./src/bcrypt-passwords/worker.ts",
     "./identity-passwords": "./src/identity-passwords/index.ts",
     "./result": "./src/result.ts",
     "./base64": "./src/base64/index.ts",
@@ -15,6 +17,7 @@
     "check": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "bcryptjs": "3.0.3",
     "tesseract.js": "7.0.0"
   }
 }

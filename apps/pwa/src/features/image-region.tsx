@@ -110,7 +110,7 @@ export function ImageRegionPicker({
       >
         <img
           src={url || undefined}
-          alt="Image selected for text recognition"
+          alt="Selected for text recognition"
           draggable={false}
         />
         {selected && (

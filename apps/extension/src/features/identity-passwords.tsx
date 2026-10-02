@@ -1,11 +1,5 @@
-import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@swiss/ui/components/button';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from '@swiss/ui/components/input-group';
+import { Input } from '@swiss/ui/components/input';
 import { Textarea } from '@swiss/ui/components/textarea';
 import { Field, FieldGroup, FieldLabel } from '@swiss/ui/components/field';
 import { useWorkspace } from '../state/workspace';
@@ -19,9 +13,7 @@ export function IdentityPasswords({
   const { identity: state } = useWorkspace();
   const hash = operation === 'hash';
   const password = hash ? state.hashPassword : state.verifyPassword;
-  const show = hash ? state.showHashPassword : state.showVerifyPassword;
   const busy = hash ? state.hashBusy : state.verifyBusy;
-  const PasswordVisibilityIcon = show ? EyeOff : Eye;
   return (
     <section aria-labelledby="identity-title">
       <h1 id="identity-title">{hash ? 'Hash password' : 'Verify password'}</h1>
@@ -33,37 +25,21 @@ export function IdentityPasswords({
       <FieldGroup>
         <Field data-disabled={hash && busy}>
           <FieldLabel htmlFor="identity-password">Password</FieldLabel>
-          <InputGroup className="password-input">
-            <InputGroupInput
-              id="identity-password"
-              type={show ? 'text' : 'password'}
-              autoComplete="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              value={password}
-              disabled={hash && busy}
-              onChange={(event) =>
-                hash
-                  ? state.changeHashPassword(event.target.value)
-                  : state.changeVerifyPassword(event.target.value)
-              }
-              aria-describedby="identity-feedback"
-            />
-            <InputGroupAddon align="inline-end">
-              <InputGroupButton
-                size="icon-sm"
-                aria-label={show ? 'Hide password' : 'Show password'}
-                aria-pressed={show}
-                onClick={() =>
-                  hash
-                    ? state.setShowHashPassword(!show)
-                    : state.setShowVerifyPassword(!show)
-                }
-              >
-                <PasswordVisibilityIcon aria-hidden="true" />
-              </InputGroupButton>
-            </InputGroupAddon>
-          </InputGroup>
+          <Input
+            id="identity-password"
+            type="text"
+            autoComplete="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            value={password}
+            disabled={hash && busy}
+            onChange={(event) =>
+              hash
+                ? state.changeHashPassword(event.target.value)
+                : state.changeVerifyPassword(event.target.value)
+            }
+            aria-describedby="identity-feedback"
+          />
         </Field>
         {!hash && (
           <Field>
