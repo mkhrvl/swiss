@@ -20,7 +20,7 @@ The probe used SDK 10.0.112, the installed WebAssembly workload/runtime pack 10.
 
 The existing hasher is synchronous and has no cooperative cancellation interface. The probe cancelled active work by terminating its dedicated worker, then proved that a new worker could verify another hash. This resets the feature's runtime and requires initialization again on the next operation.
 
-Source, local runtime assets, fixtures, run scripts, and six result files are preserved in [the feasibility archive](../../artifacts/identity-wasm-feasibility.zip). The probe is throwaway code, not a production implementation.
+The generated feasibility archive was removed during artifact cleanup. This report preserves the throwaway probe's findings; the production implementation lives in `packages/core/src/identity-passwords/`.
 
 ## Scope
 
