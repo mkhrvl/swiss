@@ -1,0 +1,20 @@
+{
+  "name": "@swiss/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./identity-passwords": "./src/identity-passwords/index.ts",
+    "./result": "./src/result.ts",
+    "./base64": "./src/base64/index.ts",
+    "./ocr": "./src/ocr/index.ts",
+    "./ocr/worker": "./src/ocr/worker.ts",
+    "./secret-generation": "./src/secret-generation/index.ts"
+  },
+  "scripts": {
+    "check": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "tesseract.js": "7.0.0"
+  }
+}

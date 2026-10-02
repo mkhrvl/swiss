@@ -1,0 +1,17 @@
+**/bin/
+**/obj/
+.vs/
+.idea/
+*.user
+*.suo
+TestResults/
+artifacts/
+node_modules/
+**/dist/
+**/.output/
+**/.wxt/
+**/public/ocr/
+**/public/identity/
+playwright-report/
+
+.fake

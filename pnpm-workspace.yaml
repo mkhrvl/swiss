@@ -1,0 +1,17 @@
+packages:
+  - apps/*
+  - packages/*
+
+allowBuilds:
+  tesseract.js: false
+
+minimumReleaseAgeExclude:
+  - '@types/node@26.6.4'
+  - vite@8.3.2
+  - lucide-react@1.50.0
+
+onlyBuiltDependencies:
+  - esbuild
+
+patchedDependencies:
+  tesseract.js@7.0.0: patches/tesseract.js@7.0.0.patch

@@ -1,0 +1,10 @@
+node_modules/
+artifacts/
+**/public/ocr/
+**/public/identity/
+**/bin/
+**/obj/
+**/dist/
+**/.output/
+**/.wxt/
+pnpm-lock.yaml

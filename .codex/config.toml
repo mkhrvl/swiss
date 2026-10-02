@@ -1,0 +1,17 @@
+[mcp_servers.shadcn]
+command = "pnpm"
+args = ["exec", "shadcn", "mcp"]
+# Paths in project configuration resolve relative to this .codex directory.
+cwd = "../apps/pwa"
+
+[mcp_servers.playwright]
+command = "pnpm"
+args = ["dlx", "@playwright/mcp@0.0.83", "--browser", "chromium", "--headless", "--isolated", "--output-dir", "artifacts/playwright-mcp"]
+cwd = ".."
+startup_timeout_sec = 60
+
+[mcp_servers.nuget]
+command = "dnx"
+args = ["NuGet.Mcp.Server@1.4.16", "--source", "https://api.nuget.org/v3/index.json", "--yes"]
+cwd = ".."
+startup_timeout_sec = 60

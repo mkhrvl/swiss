@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/packages/core/identity-passwords/">
+    <Project Path="packages/core/src/identity-passwords/dotnet/Swiss.Identity/Swiss.Identity.csproj" />
+    <Project Path="packages/core/src/identity-passwords/dotnet/Swiss.Identity.Browser/Swiss.Identity.Browser.csproj" />
+    <Project Path="packages/core/src/identity-passwords/dotnet/Swiss.Identity.Tests/Swiss.Identity.Tests.csproj" />
+  </Folder>
+</Solution>

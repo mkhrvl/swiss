@@ -1,0 +1,32 @@
+[
+  {
+    "hash": "ADkbqXf0ukaIc3G3seKUiipCtpPXSsx2MiLYN1TFNkGQa0iyZgQ9rrdDtQPICEqtLw==",
+    "password": "  café 🔐  ",
+    "expected": "SuccessRehashNeeded"
+  },
+  {
+    "hash": "AQAAAAIAACcQAAAAEOxPpu04BGBLH2pQ/FF1a8LKT416ARcczP+BDwhA2eVMz0F9pZDOJoPDdYkba/7Tew==",
+    "password": "  café 🔐  ",
+    "expected": "SuccessRehashNeeded"
+  },
+  {
+    "hash": "AQAAAAIAAYagAAAAEMZGkcQ2LeOcll9PTLjSwMGczjuW7uRgu/mwXPndDmp5LQs1AJfQpf4i47+l4L7qrA==",
+    "password": "  café 🔐  ",
+    "expected": "Success"
+  },
+  {
+    "hash": "AQAAAAIAD0JAAAAAEEpY1TXPZJGNK9Go8OypwEFF5+QpqqqnSGomPigw4tLl8dNDQMLJD9EjqYVKLjCGwA==",
+    "password": "test cancellation",
+    "expected": "Success"
+  },
+  {
+    "hash": "AQAAAAL/////AAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+    "password": "bounded work",
+    "expected": "UnsupportedHash"
+  },
+  {
+    "hash": "AQAAAAIAAAABAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+    "password": "bounded subkey",
+    "expected": "UnsupportedHash"
+  }
+]
