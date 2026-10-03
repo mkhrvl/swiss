@@ -11,13 +11,15 @@
     "./base64": "./src/base64/index.ts",
     "./ocr": "./src/ocr/index.ts",
     "./ocr/worker": "./src/ocr/worker.ts",
-    "./secret-generation": "./src/secret-generation/index.ts"
+    "./secret-generation": "./src/secret-generation/index.ts",
+    "./json": "./src/json/index.ts"
   },
   "scripts": {
     "check": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "bcryptjs": "3.0.3",
+    "jsonc-parser": "3.3.1",
     "tesseract.js": "7.0.0"
   }
 }

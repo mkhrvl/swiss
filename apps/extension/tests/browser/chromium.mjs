@@ -1,3 +1,4 @@
+import { jsonUiChecks } from '../../../../scripts/json-browser-checks.mjs';
 import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
@@ -64,12 +65,45 @@ try {
   });
   const bcrypt = await page.evaluate(bcryptUiChecks);
   const generators = await page.evaluate(secretGenerationUiChecks);
+  const json = await page.evaluate(jsonUiChecks);
+  await page.screenshot({
+    path: 'artifacts/web-browser/extension-json.png',
+    fullPage: true,
+  });
   await navigateTool(page, 'Generate JWT signing key');
   await page.screenshot({
     path: 'artifacts/web-browser/extension-jwt-generator.png',
     fullPage: true,
   });
   console.log('Chromium extension Identity checks passed.');
+  await navigateTool(page, 'JSON');
+  const jsonSource = '{"id":9007199254740993}';
+  await page.getByLabel('JSON input', { exact: true }).fill(jsonSource);
+  await page.getByText('Format', { exact: true }).click();
+  await page.getByText('4 spaces', { exact: true }).click();
+  await page.waitForFunction(() =>
+    document.querySelector('#json-output')?.value.includes('\n    "id":'),
+  );
+  const [jsonTab] = await Promise.all([
+    browser.context.waitForEvent('page'),
+    page.getByRole('button', { name: 'Open in tab', exact: true }).click(),
+  ]);
+  await jsonTab.waitForFunction(
+    () =>
+      document.querySelector('#json-input')?.value ===
+      '{"id":9007199254740993}',
+  );
+  assert.equal(
+    await jsonTab.getByLabel('JSON output', { exact: true }).inputValue(),
+    '{\n    "id": 9007199254740993\n}',
+  );
+  assert(!jsonTab.url().includes('9007199254740993'));
+  await page.getByLabel('JSON input', { exact: true }).fill('false');
+  assert.equal(
+    await jsonTab.getByLabel('JSON input', { exact: true }).inputValue(),
+    jsonSource,
+  );
+  await jsonTab.close();
   await navigateTool(page, 'Hash password');
   await page
     .getByLabel('Password', { exact: true })
@@ -215,6 +249,7 @@ try {
   await page.evaluate(identityUiChecks, { fixtures, verifyFirst: true });
   await page.evaluate(bcryptUiChecks);
   await page.evaluate(secretGenerationUiChecks);
+  await page.evaluate(jsonUiChecks);
   assert.deepEqual(errors, []);
   console.log(
     JSON.stringify(
@@ -226,6 +261,7 @@ try {
           'Sidebar collapse, mobile drawer, keyboard dismissal/focus and in-memory state',
           'Base64 and native CSP OCR',
           'One-time tab transfer and independent workspaces',
+          'JSON input/options transfer and independent output recomputation',
           'Generator tab transfer copies options without generated secrets',
           'Bcrypt tab transfer preserves inputs/cost, shows passwords, and excludes results',
           'Crop, cancel and restart, invalid region',
@@ -233,6 +269,7 @@ try {
           'Offline reload and recognition from bundled English data',
           ...bcrypt.checks,
           ...generators.checks,
+          ...json.checks,
           ...identity.checks,
           'Identity hashing and verification after a fresh extension reload',
         ],

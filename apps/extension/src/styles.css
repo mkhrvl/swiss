@@ -23,6 +23,9 @@
   margin-inline: auto;
   padding: 20px 12px;
 }
+.workspace-content[data-tool='json'] {
+  max-width: none;
+}
 .workspace-content section {
   min-width: 0;
 }

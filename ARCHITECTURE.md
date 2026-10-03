@@ -32,7 +32,7 @@ Both hosts compile the shared packages' TypeScript source directly. Core exposes
 | `packages/ui/src/`            | Shared shadcn/ui components, theme, and component helpers          |
 | `scripts/`                    | Asset preparation, verification, and shared browser-test support   |
 
-Core is organized by feature: `base64`, `ocr`, `identity-passwords`, `bcrypt-passwords`, and `secret-generation`. Related contracts, implementations, and TypeScript tests stay together. The shared `result.ts` defines the result type for expected validation failures; features own their error codes, and hosts own user-facing wording. Unexpected failures throw.
+Core is organized by feature: `base64`, `json`, `ocr`, `identity-passwords`, `bcrypt-passwords`, and `secret-generation`. Related contracts, implementations, and TypeScript tests stay together. The shared `result.ts` defines the result type for expected validation failures; features own their error codes, and hosts own user-facing wording. Unexpected failures throw.
 
 Identity's C# code lives within its feature at `packages/core/src/identity-passwords/dotnet/`:
 
@@ -47,6 +47,7 @@ Identity's C# code lives within its feature at `packages/core/src/identity-passw
 | Tool family        | Execution                                                                                          |
 | ------------------ | -------------------------------------------------------------------------------------------------- |
 | Base64             | Synchronous TypeScript processing                                                                  |
+| JSON               | Bounded synchronous TypeScript with strict validation and lossless token rendering                 |
 | Secret generation  | Synchronous TypeScript using Web Crypto randomness                                                 |
 | OCR                | Processing worker for image decoding/cropping and model validation, with a nested Tesseract worker |
 | Identity passwords | Module worker hosting the C# library and .NET WebAssembly runtime                                  |
@@ -68,7 +69,7 @@ The extension background coordinates browser actions and temporary input deliver
 
 The PWA uses `vite-plugin-pwa` and Workbox to cache the app shell. OCR and Identity assets load on first use into versioned caches; host loaders verify model/runtime integrity and repair missing or damaged data when online. Once cached, these tools support offline reloads. Browser storage eviction requires an online reload of the affected assets.
 
-The extension bundles its executable assets and English OCR model for first-use offline operation. Base64, bcrypt, and secret generation need no runtime downloads in either host.
+The extension bundles its executable assets and English OCR model for first-use offline operation. Base64, JSON, bcrypt, and secret generation need no runtime downloads in either host.
 
 Build preparation copies OCR assets and license notices through `scripts/prepare-web-assets.mjs`, and publishes/copies Identity WebAssembly assets through `scripts/prepare-identity-assets.mjs`. Generated assets and host build outputs are ignored by Git and rebuilt from pinned dependencies. PWA updates require an explicit reload because replacing the page clears workspace state.
 

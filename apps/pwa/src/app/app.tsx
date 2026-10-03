@@ -17,6 +17,7 @@ import { IdentityPasswords } from '../features/identity-passwords';
 import { SecretGenerators } from '../features/secret-generators';
 import { BcryptPasswords } from '../features/bcrypt-passwords';
 import { useWorkspace } from '../state/workspace';
+import { JsonTools } from '../features/json';
 export function App() {
   const state = useWorkspace();
   const {
@@ -26,6 +27,8 @@ export function App() {
   let toolContent;
   if (state.tool === 'base64') {
     toolContent = <Base64 />;
+  } else if (state.tool === 'json') {
+    toolContent = <JsonTools />;
   } else if (state.tool === 'ocr') {
     toolContent = <Ocr />;
   } else if (state.tool === 'bcrypt-hash' || state.tool === 'bcrypt-verify') {
@@ -51,7 +54,7 @@ export function App() {
         <header className="workspace-header">
           <SidebarTrigger />
         </header>
-        <div className="workspace-content">
+        <div className="workspace-content" data-tool={state.tool}>
           {needRefresh && (
             <Alert className="mb-6">
               <AlertTitle>Update available</AlertTitle>

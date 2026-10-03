@@ -1,3 +1,4 @@
+import { jsonUiChecks } from '../../../../scripts/json-browser-checks.mjs';
 import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
 // Stock Firefox/Zen use WebDriver BiDi; Playwright's patched Firefox is not Zen.
@@ -298,6 +299,12 @@ try {
     ),
   );
   result.checks.push(...generators.checks);
+  const json = JSON.parse(
+    await evaluate(
+      `(async () => JSON.stringify(await (${jsonUiChecks.toString()})()))()`,
+    ),
+  );
+  result.checks.push(...json.checks);
   await mkdir('artifacts/web-browser', { recursive: true });
   await writeFile(
     `artifacts/web-browser/identity-${browserName}-${extension ? 'extension' : 'pwa'}.json`,
@@ -338,6 +345,7 @@ try {
   );
   await evaluate(`(${bcryptUiChecks.toString()})()`);
   await evaluate(`(${secretGenerationUiChecks.toString()})()`);
+  await evaluate(`(${jsonUiChecks.toString()})()`);
   const evidence = {
     browser: browserName,
     version: session.capabilities.browserVersion,

@@ -3,7 +3,9 @@ import type {
   JwtKeyOptions,
   RandomPasswordOptions,
 } from '../state/secret-generation';
+import type { JsonOptions } from '@swiss/core/json';
 export type WorkspaceInput =
+  | { tool: 'json'; text: string; options: JsonOptions }
   | { tool: 'base64'; text: string }
   | { tool: 'ocr'; dataUrl: string }
   | { tool: 'identity-hash'; password: string }

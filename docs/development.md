@@ -82,4 +82,4 @@ See [the architecture overview](../ARCHITECTURE.md) for the current system and [
 
 ## Dependency licenses
 
-bcryptjs is BSD-3-Clause licensed. Microsoft's Identity package and CSharpier are MIT licensed. Lucide icons are ISC licensed. xUnit and AwesomeAssertions are Apache-2.0 licensed. Copied shadcn/ui primitives retain their MIT notice in `packages/ui/LICENSE.md`. Bundled Tesseract.js/core are Apache-2.0 licensed and the English model package is MIT licensed. Retain applicable notices when distributing the web hosts.
+bcryptjs is BSD-3-Clause licensed. Microsoft's Identity package and CSharpier are MIT licensed. Lucide icons are ISC licensed. xUnit and AwesomeAssertions are Apache-2.0 licensed. react-resizable-panels is MIT licensed. Copied shadcn/ui primitives retain their MIT notice in `packages/ui/LICENSE.md`. Microsoft’s jsonc-parser 3.3.1 is MIT licensed; asset preparation includes its notice at `licenses/jsonc-parser.txt` in both hosts. Bundled Tesseract.js/core are Apache-2.0 licensed and the English model package is MIT licensed. Retain applicable notices when distributing the web hosts.

@@ -13,6 +13,7 @@ node_modules/
 **/public/ocr/
 **/public/identity/
 **/public/licenses/bcryptjs.txt
+**/public/licenses/jsonc-parser.txt
 playwright-report/
 .sonarqube/
 .scannerwork/

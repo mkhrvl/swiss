@@ -1,5 +1,6 @@
 import {
   Braces,
+  FileJson,
   Hash,
   ScanText,
   ShieldCheck,
@@ -29,6 +30,7 @@ const toolGroups = [
     tools: [
       { id: 'base64', label: 'Decode Base64', icon: Braces },
       { id: 'ocr', label: 'Extract text', icon: ScanText },
+      { id: 'json', label: 'JSON', icon: FileJson },
     ],
   },
   {

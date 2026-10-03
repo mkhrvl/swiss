@@ -1,3 +1,4 @@
+import { jsonUiChecks } from '../../../../scripts/json-browser-checks.mjs';
 import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -61,6 +62,11 @@ try {
   });
   const bcrypt = await page.evaluate(bcryptUiChecks);
   const generators = await page.evaluate(secretGenerationUiChecks);
+  const json = await page.evaluate(jsonUiChecks);
+  await page.screenshot({
+    path: 'artifacts/web-browser/pwa-json.png',
+    fullPage: true,
+  });
   await navigateTool(page, 'Generate JWT signing key');
   await page.screenshot({
     path: 'artifacts/web-browser/pwa-jwt-generator.png',
@@ -136,6 +142,7 @@ try {
   await page.evaluate(identityUiChecks, { fixtures, verifyFirst: true });
   await page.evaluate(bcryptUiChecks);
   await page.evaluate(secretGenerationUiChecks);
+  await page.evaluate(jsonUiChecks);
   const storage = await page.evaluate(async () => ({
     local: localStorage.length,
     session: sessionStorage.length,
@@ -165,6 +172,7 @@ try {
           'No workspace persistence',
           ...bcrypt.checks,
           ...generators.checks,
+          ...json.checks,
           ...identity.checks,
           'Identity hashing and verification after a fresh offline reload',
         ],

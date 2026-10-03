@@ -16,6 +16,7 @@ import { BcryptPasswords } from './features/bcrypt-passwords';
 import { useWorkspace } from './state/workspace';
 import { subscribeToInput } from './platform/input';
 import type { WorkspaceInput } from './platform/messages';
+import { JsonTools } from './features/json';
 export function App() {
   const state = useWorkspace();
   const [notice, setNotice] = useState('');
@@ -23,7 +24,10 @@ export function App() {
   async function consume(input: WorkspaceInput) {
     state.setTool(input.tool);
     if (input.tool === 'base64') state.setBase64(input.text);
-    else if (input.tool === 'identity-hash')
+    else if (input.tool === 'json') {
+      state.json.setSource(input.text);
+      state.json.setOptions(input.options);
+    } else if (input.tool === 'identity-hash')
       state.identity.changeHashPassword(input.password);
     else if (input.tool === 'identity-verify') {
       state.identity.changeVerifyPassword(input.password);
@@ -69,6 +73,12 @@ export function App() {
     let input: WorkspaceInput | undefined;
     if (state.tool === 'base64' && state.base64)
       input = { tool: 'base64', text: state.base64 };
+    if (state.tool === 'json')
+      input = {
+        tool: 'json',
+        text: state.json.source,
+        options: state.json.options,
+      };
     if (state.tool === 'ocr' && state.image) {
       const dataUrl = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -127,6 +137,8 @@ export function App() {
   let toolContent;
   if (state.tool === 'base64') {
     toolContent = <Base64 />;
+  } else if (state.tool === 'json') {
+    toolContent = <JsonTools />;
   } else if (state.tool === 'ocr') {
     toolContent = <Ocr />;
   } else if (state.tool === 'bcrypt-hash' || state.tool === 'bcrypt-verify') {
@@ -177,7 +189,7 @@ export function App() {
             )}
           </div>
         </header>
-        <div className="workspace-content">
+        <div className="workspace-content" data-tool={state.tool}>
           {notice && (
             <Alert className="mb-4">
               <AlertDescription>{notice}</AlertDescription>

@@ -63,10 +63,98 @@
   --sidebar-accent-foreground: #b6f1d6;
   --sidebar-border: #435d50;
   --output: #11151a;
+  --syntax-property: #a8c7fa;
+  --syntax-string: #90d9ba;
+  --syntax-number: #f0c98d;
+  --syntax-keyword: #d6b5f5;
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-ring: var(--ring);
+}
+
+/* Keep native textarea editing and selection above a decorative token layer.
+   Both layers share exact text geometry, including wrapping and tab stops. */
+.syntax-control,
+.syntax-highlight {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: normal;
+  tab-size: 4;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+.syntax-highlight {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  border: 1px solid transparent;
+  padding: 8px 12px 8px calc(var(--syntax-gutter) + 12px);
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  color: var(--foreground);
+}
+.syntax-highlight-group {
+  border: 0;
+  padding: 12px 12px 12px calc(var(--syntax-gutter) + 12px);
+}
+.syntax-line {
+  display: block;
+  position: relative;
+  min-height: 1.5em;
+}
+.syntax-line::before {
+  content: attr(data-line);
+  position: absolute;
+  right: calc(100% + 12px);
+  width: calc(var(--syntax-gutter) - 12px);
+  text-align: right;
+  color: var(--muted-foreground);
+}
+.syntax-control {
+  padding-left: calc(var(--syntax-gutter) + 12px);
+}
+.syntax-surface {
+  background: color-mix(in srgb, var(--input) 30%, transparent);
+}
+.syntax-surface[data-highlighted='true'] > .syntax-control {
+  position: relative;
+  color: transparent;
+  caret-color: var(--foreground);
+  background: transparent;
+}
+.syntax-control::selection {
+  color: var(--foreground);
+  background: var(--accent);
+}
+.syntax-highlight [data-syntax='property'] {
+  color: var(--syntax-property);
+}
+.syntax-highlight [data-syntax='string'] {
+  color: var(--syntax-string);
+}
+.syntax-highlight [data-syntax='number'] {
+  color: var(--syntax-number);
+}
+.syntax-highlight [data-syntax='keyword'] {
+  color: var(--syntax-keyword);
+}
+.syntax-highlight [data-syntax='punctuation'] {
+  color: var(--muted-foreground);
+}
+.syntax-highlight [data-syntax='invalid'] {
+  color: var(--destructive);
+}
+@media (forced-colors: active) {
+  .syntax-highlight {
+    display: none;
+  }
+  .syntax-surface[data-highlighted='true'] > .syntax-control {
+    color: CanvasText;
+    caret-color: CanvasText;
+  }
 }
 
 @layer base {

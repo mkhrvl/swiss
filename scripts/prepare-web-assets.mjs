@@ -9,6 +9,10 @@ const bcryptLicense = resolve(
   '..',
   'LICENSE',
 );
+const jsonLicense = join(
+  dirname(require.resolve('jsonc-parser/package.json')),
+  'LICENSE.md',
+);
 const tesseract = dirname(require.resolve('tesseract.js/package.json'));
 const core = dirname(
   createRequire(join(tesseract, 'package.json')).resolve(
@@ -31,6 +35,7 @@ for (const host of ['pwa', 'extension']) {
   const licenses = resolve(`apps/${host}/public/licenses`);
   await mkdir(licenses, { recursive: true });
   await copyFile(bcryptLicense, join(licenses, 'bcryptjs.txt'));
+  await copyFile(jsonLicense, join(licenses, 'jsonc-parser.txt'));
   const destination = resolve(
     `apps/${host}/public/ocr/tesseract-7.0.0-eng-1.0.0`,
   );
@@ -53,5 +58,5 @@ for (const host of ['pwa', 'extension']) {
   await copyFile(model, join(destination, 'eng.traineddata.gz'));
 }
 console.log(
-  'Prepared bundled OCR assets, English data and bcrypt license notices in both hosts.',
+  'Prepared bundled OCR assets, English data and dependency license notices in both hosts.',
 );

@@ -20,13 +20,14 @@
   <a href="ARCHITECTURE.md">Architecture</a>
 </p>
 
-Swiss (as in Swiss Army knife) is a local developer toolbox for decoding data, extracting text from images, working with password hashes, and generating secrets. All processing runs on your device. Inputs and results stay in memory for the lifetime of an open workspace.
+Swiss (as in Swiss Army knife) is a local developer toolbox for decoding data, working with JSON, extracting text from images, working with password hashes, and generating secrets. All processing runs on your device. Inputs and results stay in memory for the lifetime of an open workspace.
 
 ## What you can do
 
 | Tool                   | What it does                                           |
 | ---------------------- | ------------------------------------------------------ |
 | **Base64**             | Decode Base64 data.                                    |
+| **JSON**               | Validate, format, and minify with syntax highlighting. |
 | **OCR**                | Extract English text from images or a selected region. |
 | **Identity passwords** | Generate and verify ASP.NET Identity password hashes.  |
 | **Bcrypt passwords**   | Generate and verify bcrypt hashes with cost guidance.  |
