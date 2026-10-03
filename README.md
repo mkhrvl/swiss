@@ -20,45 +20,34 @@
   <a href="ARCHITECTURE.md">Architecture</a>
 </p>
 
-Swiss (as in Swiss Army knife) is a local developer toolbox for decoding data, working with JSON, extracting text from images, working with password hashes, and generating secrets. All processing runs on your device. Inputs and results stay in memory for the lifetime of an open workspace.
+Swiss (as in Swiss Army knife) is a developer toolbox for decoding Base64, formatting JSON, extracting text from images, hashing passwords, and generating secrets, all without leaving your browser.
+
+> **Everything stays on your device.** Swiss has no backend, analytics, or remote processing. Inputs and results live in memory and are cleared when you close the workspace.
 
 ## What you can do
 
-| Tool                   | What it does                                           |
-| ---------------------- | ------------------------------------------------------ |
-| **Base64**             | Decode Base64 data.                                    |
-| **JSON**               | Validate, format, and minify with syntax highlighting. |
-| **OCR**                | Extract English text from images or a selected region. |
-| **Identity passwords** | Generate and verify ASP.NET Identity password hashes.  |
-| **Bcrypt passwords**   | Generate and verify bcrypt hashes with cost guidance.  |
-| **API keys**           | Generate random tokens in Base64url, Base64, or Hex.   |
-| **JWT signing keys**   | Generate HMAC keys for HS256, HS384, and HS512.        |
-| **Random passwords**   | Choose the length and character groups.                |
+| Tool                   | What it does                                                           |
+| ---------------------- | ---------------------------------------------------------------------- |
+| **Base64**             | Decode standard or URL-safe Base64 to text, or to hex for binary.      |
+| **JSON**               | Validate, format, and minify with syntax highlighting.                 |
+| **OCR**                | Extract English text from an image or a selected region.               |
+| **Identity passwords** | Generate and verify ASP.NET Identity password hashes.                  |
+| **Bcrypt passwords**   | Generate and verify bcrypt hashes with cost guidance.                  |
+| **API keys**           | Generate random tokens in Base64url, Base64, or hex.                   |
+| **JWT signing keys**   | Generate HMAC keys for HS256, HS384, and HS512.                        |
+| **Random passwords**   | Generate 8–128 character passwords from the character sets you choose. |
 
 See [the tool guide](docs/tools.md) for defaults, limits, and usage details.
 
 ## Two ways to use Swiss
 
-The **PWA** is a standalone web workspace built with React and Vite. It supports offline use and can be installed in browsers that support PWA installation.
+The **web app** runs in Chromium and Firefox-based browsers and can be installed as a PWA for offline use. It downloads the OCR and Identity assets the first time you use those tools, then works offline.
 
-The **browser extension** is built with WXT for Chromium and Firefox-based browsers, including Zen. It adds a sidebar, selection decoding, and page capture for OCR, so you can use the tools while browsing.
-
-> **Your workspace stays local.** Both hosts process inputs on your device, without a backend, analytics, or remote processing. Closing a workspace clears its inputs and results.
-
-The extension bundles OCR and Identity assets; the PWA caches them on first use for later offline sessions.
+The **browser extension** works in Chromium and Firefox-based browsers, including Zen. It adds a sidebar, decodes selected text, and captures pages for OCR, so you can use the tools while browsing. It ships with all assets included.
 
 ## How the repository is organized
 
-The hosts share business logic and UI components while owning their own layouts and browser integration.
-
-| Path             | Purpose                                                  |
-| ---------------- | -------------------------------------------------------- |
-| `apps/pwa`       | React/Vite progressive web app                           |
-| `apps/extension` | WXT browser extension                                    |
-| `packages/core`  | Feature modules containing processing and business rules |
-| `packages/ui`    | Shared shadcn/ui components and theme                    |
-
-Core modules are grouped by feature. The Identity feature includes a C# library that runs in the browser through a local WebAssembly worker; the other tools use TypeScript and browser APIs.
+The two hosts, `apps/pwa` and `apps/extension`, share feature logic in `packages/core` and UI components in `packages/ui`, while owning their own layouts and browser integration. See [the architecture overview](ARCHITECTURE.md) for the full repository map.
 
 ## Documentation
 
