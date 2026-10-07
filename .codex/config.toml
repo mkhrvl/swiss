@@ -1,8 +1,8 @@
 [mcp_servers.shadcn]
 command = "pnpm"
 args = ["exec", "shadcn", "mcp"]
-# Paths in project configuration resolve relative to this .codex directory.
-cwd = "../apps/pwa"
+# Use an absolute path so MCP startup does not depend on the client's directory.
+cwd = "/home/mkrevil/swiss/apps/pwa"
 
 [mcp_servers.playwright]
 command = "pnpm"
