@@ -56,7 +56,28 @@ Run `pnpm build` to prepare local assets and build the PWA, Chromium extension, 
 
 Preview the built PWA locally with `pnpm --filter @swiss/pwa preview`.
 
-The PWA builds to `apps/pwa/dist`. Serve it from the root of an HTTPS origin (localhost also works). Install it through a supporting browser's install control. Firefox and Zen can use the web app and its offline behavior even where PWA installation is unavailable. Updates show a reload button and warn that reloading clears the workspace.
+The PWA builds to `apps/pwa/dist`. The default build serves from the root of an HTTPS origin (localhost also works). Install it through a supporting browser's install control. Firefox and Zen can use the web app and its offline behavior even where PWA installation is unavailable. Updates show a reload button and warn that reloading clears the workspace.
+
+### GitHub Pages
+
+`.github/workflows/pages.yml` verifies and builds the repository, runs Chromium checks, then rebuilds the PWA with `--base=/swiss/`. It checks manifest/service-worker scope, real OCR and Identity/WASM processing, and offline reloads under that path before uploading `apps/pwa/dist`. Pushes to `main` and manual workflow runs deploy to <https://mkhrvl.github.io/swiss/>. In repository Settings → Pages, the source must be **GitHub Actions**.
+
+To reproduce the Pages build locally after `pnpm verify`:
+
+```sh
+pnpm --filter @swiss/pwa build --base=/swiss/
+SWISS_PWA_BASE_PATH=/swiss/ node apps/pwa/tests/browser/smoke.mjs
+```
+
+To check the published site in an isolated Chromium profile:
+
+```sh
+SWISS_PWA_URL=https://mkhrvl.github.io/swiss/ node apps/pwa/tests/browser/smoke.mjs
+```
+
+The live-site check uses synthetic inputs and its own browser caches. It disables network access for its offline checks. A custom domain serving the app at its root needs `--base=/` instead, with the workflow's base-path check updated to match.
+
+### Browser extension distribution
 
 Load `apps/extension/.output/chrome-mv3` with **Load unpacked** on `chrome://extensions`. For Firefox or Zen, open `about:debugging#/runtime/this-firefox`, select **Load Temporary Add-on**, and choose `apps/extension/.output/firefox-mv2/manifest.json`. Temporary add-ons disappear when the browser closes; signed distribution is a later release step. If WXT cannot launch a browser from WSL, keep `pnpm dev:firefox` running and load `apps/extension/.output/firefox-mv2-dev/manifest.json` manually in Firefox or Zen; that development build connects to the running server.
 

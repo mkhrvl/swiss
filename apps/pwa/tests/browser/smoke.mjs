@@ -15,7 +15,10 @@ import {
   ocrChecks,
   assert,
 } from '../../../../scripts/browser-test-support.mjs';
-const server = await serve('apps/pwa/dist');
+const basePath = process.env.SWISS_PWA_BASE_PATH ?? '/';
+const server = process.env.SWISS_PWA_URL
+  ? { url: process.env.SWISS_PWA_URL, close: async () => {} }
+  : await serve('apps/pwa/dist', 0, basePath);
 const browser = await launch();
 const errors = [];
 try {
@@ -33,6 +36,15 @@ try {
       assetRequests.push(request.url());
   });
   await page.goto(server.url);
+  const manifestUrl = await page
+    .locator('link[rel="manifest"]')
+    .evaluate((element) => element.href);
+  const manifestResponse = await page.request.get(manifestUrl);
+  assert.equal(manifestResponse.status(), 200);
+  const manifest = await manifestResponse.json();
+  const appPath = new URL(server.url).pathname;
+  assert.equal(new URL(manifest.start_url, server.url).pathname, appPath);
+  assert.equal(new URL(manifest.scope, server.url).pathname, appPath);
   await mkdir('artifacts/web-browser', { recursive: true });
   await sidebarChecks(page, 'Decode Base64', 'Extract text', 360, 'pwa');
   await base64Checks(page, 'Decode Base64', 'Extract text');
@@ -80,6 +92,12 @@ try {
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
   });
+  assert.equal(
+    await page.evaluate(
+      async () => (await navigator.serviceWorker.ready).scope,
+    ),
+    new URL(server.url).href,
+  );
   await page.waitForFunction(() => navigator.serviceWorker.controller);
   // First use after reload repairs damaged assets through the service worker.
   await page.evaluate(async () => {
@@ -162,13 +180,14 @@ try {
         browser: browser.context.browser().version(),
         passed: true,
         checks: [
+          'Manifest start URL/scope and service-worker scope match the hosted path',
           'Sidebar collapse, mobile drawer, keyboard dismissal/focus and in-memory state',
           'Base64 exact text, binary, invalid input, navigation state',
           'Lazy initialization without preparation controls or downloads for unused tools',
           'Automatic repair of damaged Identity worker and OCR model caches',
           'English OCR crop, invalid region, cancellation and restart',
           '360px and desktop layouts',
-          'Fresh offline reload and OCR with server stopped and HTTP cache disabled',
+          'Fresh offline reload and OCR with network access and HTTP cache disabled',
           'No workspace persistence',
           ...bcrypt.checks,
           ...generators.checks,

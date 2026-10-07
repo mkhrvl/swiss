@@ -1,0 +1,63 @@
+name: Deploy PWA to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.112
+      - name: Install WebAssembly workload
+        run: dotnet workload install wasm-tools --version 10.0.102
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify repository
+        run: pnpm verify
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Select Chrome for Testing
+        run: |
+          printf 'SWISS_CHROMIUM=%s\n' "$(node --input-type=module -e 'import { chromium } from "playwright"; console.log(chromium.executablePath())')" >> "$GITHUB_ENV"
+      - name: Check browsers
+        run: pnpm test:browser
+      - name: Build PWA for GitHub Pages
+        run: pnpm --filter @swiss/pwa build --base=/swiss/
+      - name: Check GitHub Pages paths and offline behavior
+        run: node apps/pwa/tests/browser/smoke.mjs
+        env:
+          SWISS_PWA_BASE_PATH: /swiss/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/pwa/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

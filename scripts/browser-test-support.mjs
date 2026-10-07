@@ -6,14 +6,18 @@ import { tmpdir } from 'node:os';
 import assert from 'node:assert/strict';
 
 export { assert };
-export async function serve(directory, port = 0) {
+export async function serve(directory, port = 0, basePath = '/') {
   const root = resolve(directory);
   const server = createServer(async (request, response) => {
     try {
-      const path = resolve(
-        root,
-        `.${decodeURIComponent(new URL(request.url, 'http://localhost').pathname)}`,
+      const pathname = decodeURIComponent(
+        new URL(request.url, 'http://localhost').pathname,
       );
+      if (!pathname.startsWith(basePath)) {
+        response.writeHead(404).end();
+        return;
+      }
+      const path = resolve(root, `./${pathname.slice(basePath.length)}`);
       if (path !== root && !path.startsWith(`${root}/`)) {
         response.writeHead(403).end();
         return;
@@ -43,7 +47,7 @@ export async function serve(directory, port = 0) {
   });
   await new Promise((resolve) => server.listen(port, '127.0.0.1', resolve));
   return {
-    url: `http://127.0.0.1:${server.address().port}`,
+    url: `http://127.0.0.1:${server.address().port}${basePath}`,
     close: () => new Promise((resolve) => server.close(resolve)),
   };
 }
