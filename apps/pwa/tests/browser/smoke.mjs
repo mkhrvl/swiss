@@ -1,3 +1,4 @@
+import { characterCountUiChecks } from '../../../../scripts/character-count-browser-checks.mjs';
 import { jsonUiChecks } from '../../../../scripts/json-browser-checks.mjs';
 import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
@@ -74,6 +75,18 @@ try {
   });
   const bcrypt = await page.evaluate(bcryptUiChecks);
   const generators = await page.evaluate(secretGenerationUiChecks);
+  await page.evaluate(characterCountUiChecks);
+  await page.screenshot({
+    path: 'artifacts/web-browser/pwa-character-count-narrow.png',
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 1100, height: 850 });
+  await page.evaluate(characterCountUiChecks);
+  await page.screenshot({
+    path: 'artifacts/web-browser/pwa-character-count-desktop.png',
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 360, height: 800 });
   const json = await page.evaluate(jsonUiChecks);
   await page.screenshot({
     path: 'artifacts/web-browser/pwa-json.png',
@@ -161,6 +174,7 @@ try {
   await page.evaluate(bcryptUiChecks);
   await page.evaluate(secretGenerationUiChecks);
   await page.evaluate(jsonUiChecks);
+  await page.evaluate(characterCountUiChecks);
   const storage = await page.evaluate(async () => ({
     local: localStorage.length,
     session: sessionStorage.length,

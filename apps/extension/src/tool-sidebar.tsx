@@ -1,4 +1,5 @@
 import {
+  CaseSensitive,
   Braces,
   FileJson,
   Hash,
@@ -30,6 +31,7 @@ const toolGroups = [
     tools: [
       { id: 'base64', label: 'Base64', icon: Braces },
       { id: 'ocr', label: 'English OCR', icon: ScanText },
+      { id: 'character-count', label: 'Count characters', icon: CaseSensitive },
       { id: 'json', label: 'JSON', icon: FileJson },
     ],
   },

@@ -1,3 +1,4 @@
+import { characterCountUiChecks } from '../../../../scripts/character-count-browser-checks.mjs';
 import { jsonUiChecks } from '../../../../scripts/json-browser-checks.mjs';
 import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
@@ -65,6 +66,39 @@ try {
   });
   const bcrypt = await page.evaluate(bcryptUiChecks);
   const generators = await page.evaluate(secretGenerationUiChecks);
+  await page.evaluate(characterCountUiChecks);
+  await page.screenshot({
+    path: 'artifacts/web-browser/extension-character-count-narrow.png',
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 1100, height: 850 });
+  await page.evaluate(characterCountUiChecks);
+  await page.screenshot({
+    path: 'artifacts/web-browser/extension-character-count-desktop.png',
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.getByLabel('Text to count').fill('👨‍👩‍👧‍👦e\u0301');
+  const transferredCount = browser.context.waitForEvent('page');
+  await page.getByRole('button', { name: 'Open in tab', exact: true }).click();
+  const countTab = await transferredCount;
+  await countTab.waitForLoadState();
+  await countTab.waitForFunction(
+    () =>
+      document.querySelector('#character-count-result')?.textContent ===
+      '2 characters',
+  );
+  assert.equal(
+    await countTab.getByLabel('Text to count').inputValue(),
+    '👨‍👩‍👧‍👦e\u0301',
+  );
+  await page.getByLabel('Text to count').fill('Independent edit');
+  assert.equal(
+    await countTab.getByLabel('Text to count').inputValue(),
+    '👨‍👩‍👧‍👦e\u0301',
+  );
+  await countTab.close();
+  await page.getByRole('button', { name: 'Clear', exact: true }).click();
   const json = await page.evaluate(jsonUiChecks);
   await page.screenshot({
     path: 'artifacts/web-browser/extension-json.png',
@@ -250,6 +284,7 @@ try {
   await page.evaluate(bcryptUiChecks);
   await page.evaluate(secretGenerationUiChecks);
   await page.evaluate(jsonUiChecks);
+  await page.evaluate(characterCountUiChecks);
   assert.deepEqual(errors, []);
   console.log(
     JSON.stringify(

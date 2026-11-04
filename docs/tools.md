@@ -12,6 +12,12 @@ Choose tools in the sidebar, with separate **Identity**, **Bcrypt**, and **Gener
 
 Click the Swiss toolbar button to open the side panel/sidebar. Use the selection context menu to decode Base64, the page context menu or **Alt+Shift+O** to capture the visible page for OCR, or **Capture page** in the sidebar after granting access by clicking the toolbar button on that page. Restricted browser pages cannot be captured. **Open in tab** transfers the current tool's inputs once into an independent workspace, including Identity password/hash inputs. It does not synchronize later edits or transfer results or crop selection. Transfer data stays in background memory for at most 60 seconds; URLs contain only a one-time token.
 
+## Character count
+
+Choose **Count characters** and paste or type text for a live character count. Spaces, tabs, and line breaks are included; emoji sequences and combined letters count as one character (Unicode grapheme clusters). A CRLF line break counts as one character. Empty input shows zero. **Clear** erases the text and resets the count.
+
+Input is limited to 262,144 UTF-16 code units. Oversized text remains editable and shows a message instead of a partial count. Processing works offline without downloads. Text stays in memory across tool navigation; extension **Open in tab** transfers the input once into an independent workspace.
+
 ## JSON
 
 Choose **JSON** and paste a document for live validation and output. **Format** uses 2 spaces, 4 spaces, or tabs; **Minify** removes whitespace outside strings. Both preserve the original number literals (including large IDs and negative zero), string escapes, duplicate keys, and property order. Root strings, numbers, booleans, and null are supported. Comments, trailing commas, and other non-JSON syntax are rejected.

@@ -1,3 +1,4 @@
+import { CharacterCount } from './features/character-count';
 import {
   SidebarProvider,
   SidebarInset,
@@ -24,6 +25,8 @@ export function App() {
   async function consume(input: WorkspaceInput) {
     state.setTool(input.tool);
     if (input.tool === 'base64') state.setBase64(input.text);
+    else if (input.tool === 'character-count')
+      state.setCharacterText(input.text);
     else if (input.tool === 'json') {
       state.json.setSource(input.text);
       state.json.setOptions(input.options);
@@ -73,6 +76,8 @@ export function App() {
     let input: WorkspaceInput | undefined;
     if (state.tool === 'base64' && state.base64)
       input = { tool: 'base64', text: state.base64 };
+    if (state.tool === 'character-count')
+      input = { tool: 'character-count', text: state.characterText };
     if (state.tool === 'json')
       input = {
         tool: 'json',
@@ -137,6 +142,8 @@ export function App() {
   let toolContent;
   if (state.tool === 'base64') {
     toolContent = <Base64 />;
+  } else if (state.tool === 'character-count') {
+    toolContent = <CharacterCount />;
   } else if (state.tool === 'json') {
     toolContent = <JsonTools />;
   } else if (state.tool === 'ocr') {

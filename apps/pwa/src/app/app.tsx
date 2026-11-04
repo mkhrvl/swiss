@@ -1,3 +1,4 @@
+import { CharacterCount } from '../features/character-count';
 import {
   SidebarProvider,
   SidebarInset,
@@ -27,6 +28,8 @@ export function App() {
   let toolContent;
   if (state.tool === 'base64') {
     toolContent = <Base64 />;
+  } else if (state.tool === 'character-count') {
+    toolContent = <CharacterCount />;
   } else if (state.tool === 'json') {
     toolContent = <JsonTools />;
   } else if (state.tool === 'ocr') {

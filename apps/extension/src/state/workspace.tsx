@@ -40,6 +40,7 @@ function useWorkspaceState() {
   const generators = useSecretGenerators();
   const bcrypt = useBcryptPasswords();
   const [tool, setTool] = useState<
+    | 'character-count'
     | 'json'
     | 'base64'
     | 'ocr'
@@ -51,6 +52,7 @@ function useWorkspaceState() {
     | 'jwt-key'
     | 'random-password'
   >('base64');
+  const [characterText, setCharacterText] = useState('');
   const [base64, setBase64] = useState('');
   const [image, setImage] = useState<WorkspaceImage>();
   const [region, setRegion] = useState<ImageRegion>();
@@ -184,6 +186,8 @@ function useWorkspaceState() {
     bcrypt,
     tool,
     setTool,
+    characterText,
+    setCharacterText,
     base64,
     setBase64,
     image,

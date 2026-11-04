@@ -1,3 +1,4 @@
+import { characterCountUiChecks } from '../../../../scripts/character-count-browser-checks.mjs';
 import { jsonUiChecks } from '../../../../scripts/json-browser-checks.mjs';
 import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
@@ -305,6 +306,7 @@ try {
     ),
   );
   result.checks.push(...json.checks);
+  await evaluate(`(${characterCountUiChecks.toString()})()`);
   await mkdir('artifacts/web-browser', { recursive: true });
   await writeFile(
     `artifacts/web-browser/identity-${browserName}-${extension ? 'extension' : 'pwa'}.json`,
@@ -346,6 +348,7 @@ try {
   await evaluate(`(${bcryptUiChecks.toString()})()`);
   await evaluate(`(${secretGenerationUiChecks.toString()})()`);
   await evaluate(`(${jsonUiChecks.toString()})()`);
+  await evaluate(`(${characterCountUiChecks.toString()})()`);
   const evidence = {
     browser: browserName,
     version: session.capabilities.browserVersion,
