@@ -9,6 +9,15 @@ import {
   type SecretGenerationError,
 } from '@swiss/core/secret-generation';
 
+import {
+  generateUuid,
+  type UuidOptions,
+  type UuidError,
+} from '@swiss/core/uuid';
+import type { Result } from '@swiss/core/result';
+
+type GenerationError = SecretGenerationError | UuidError;
+
 export type ApiKeyOptions = { bytes: string; encoding: SecretEncoding };
 export type JwtKeyOptions = {
   algorithm: JwtHmacAlgorithm;
@@ -18,7 +27,9 @@ export type RandomPasswordOptions = {
   length: string;
   characterTypes: PasswordCharacterType[];
 };
-const errors: Record<SecretGenerationError['code'], string> = {
+const errors: Record<GenerationError['code'], string> = {
+  'invalid-uuid-version': 'Choose UUID v4 or v7.',
+  'invalid-uuid-hyphens': 'Choose whether to include hyphens.',
   'invalid-byte-length': 'Choose a whole number from 16 to 128 random bytes.',
   'invalid-encoding': 'Choose Base64url, Base64, or Hex.',
   'invalid-algorithm': 'Choose HS256, HS384, or HS512.',
@@ -33,13 +44,13 @@ function emptyResults(): GeneratedSecret[] {
   return resultIndices.map(() => ({ value: '', copied: false }));
 }
 function useGeneratedSecrets(
-  factory: () => ReturnType<typeof generateApiKey>,
+  factory: () => Result<string, GenerationError>,
   options: object,
 ) {
   const [results, setResults] = useState(emptyResults);
   const generatedOptions = useRef<object | undefined>(undefined);
   const [message, setMessage] = useState('');
-  const [error, setError] = useState<SecretGenerationError['code']>();
+  const [error, setError] = useState<GenerationError['code']>();
   const versions = useRef(resultIndices.map(() => 0));
   const timers = useRef<(ReturnType<typeof setTimeout> | undefined)[]>([]);
   const feedbackVersion = useRef(0);
@@ -146,6 +157,14 @@ function useGeneratedSecrets(
   return { results, message, error, clear, generate, ensureGenerated, copy };
 }
 export function useSecretGenerators() {
+  const [uuidOptions, setUuidOptions] = useState<UuidOptions>({
+    version: 4,
+    hyphens: true,
+  });
+  const uuid = useGeneratedSecrets(
+    () => generateUuid(uuidOptions.version, uuidOptions.hyphens),
+    uuidOptions,
+  );
   const [apiOptions, setApiOptions] = useState<ApiKeyOptions>({
     bytes: '32',
     encoding: 'base64url',
@@ -177,6 +196,14 @@ export function useSecretGenerators() {
     passwordOptions,
   );
   return {
+    uuid: {
+      ...uuid,
+      options: uuidOptions,
+      change(options: Partial<UuidOptions>) {
+        setUuidOptions((current) => ({ ...current, ...options }));
+        uuid.clear();
+      },
+    },
     api: {
       ...api,
       options: apiOptions,

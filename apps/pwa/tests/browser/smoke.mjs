@@ -1,4 +1,5 @@
 import { characterCountUiChecks } from '../../../../scripts/character-count-browser-checks.mjs';
+import { textDiffUiChecks } from '../../../../scripts/text-diff-browser-checks.mjs';
 import { jsonUiChecks } from '../../../../scripts/json-browser-checks.mjs';
 import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
@@ -87,6 +88,7 @@ try {
     fullPage: true,
   });
   await page.setViewportSize({ width: 360, height: 800 });
+  const textDiff = await page.evaluate(textDiffUiChecks);
   const json = await page.evaluate(jsonUiChecks);
   await page.screenshot({
     path: 'artifacts/web-browser/pwa-json.png',
@@ -173,6 +175,7 @@ try {
   await page.evaluate(identityUiChecks, { fixtures, verifyFirst: true });
   await page.evaluate(bcryptUiChecks);
   await page.evaluate(secretGenerationUiChecks);
+  await page.evaluate(textDiffUiChecks);
   await page.evaluate(jsonUiChecks);
   await page.evaluate(characterCountUiChecks);
   const storage = await page.evaluate(async () => ({
@@ -206,6 +209,7 @@ try {
           ...bcrypt.checks,
           ...generators.checks,
           ...json.checks,
+          ...textDiff.checks,
           ...identity.checks,
           'Identity hashing and verification after a fresh offline reload',
         ],

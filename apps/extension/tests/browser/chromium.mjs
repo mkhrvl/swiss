@@ -1,4 +1,5 @@
 import { characterCountUiChecks } from '../../../../scripts/character-count-browser-checks.mjs';
+import { textDiffUiChecks } from '../../../../scripts/text-diff-browser-checks.mjs';
 import { jsonUiChecks } from '../../../../scripts/json-browser-checks.mjs';
 import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
@@ -99,6 +100,7 @@ try {
   );
   await countTab.close();
   await page.getByRole('button', { name: 'Clear', exact: true }).click();
+  const textDiff = await page.evaluate(textDiffUiChecks);
   const json = await page.evaluate(jsonUiChecks);
   await page.screenshot({
     path: 'artifacts/web-browser/extension-json.png',
@@ -138,6 +140,38 @@ try {
     jsonSource,
   );
   await jsonTab.close();
+  await navigateTool(page, 'Compare text');
+  await page
+    .getByLabel('Original text', { exact: true })
+    .fill('before transfer');
+  await page.getByLabel('Revised text', { exact: true }).fill('after transfer');
+  const [diffTab] = await Promise.all([
+    browser.context.waitForEvent('page'),
+    page.getByRole('button', { name: 'Open in tab', exact: true }).click(),
+  ]);
+  await diffTab.waitForFunction(
+    () =>
+      document.querySelector('#text-diff-revised')?.value === 'after transfer',
+  );
+  assert.equal(
+    await diffTab.getByLabel('Original text', { exact: true }).inputValue(),
+    'before transfer',
+  );
+  assert.equal(
+    await diffTab.locator('#text-diff-result del').textContent(),
+    'before',
+  );
+  assert.equal(
+    await diffTab.locator('#text-diff-result ins').textContent(),
+    'after',
+  );
+  assert(!diffTab.url().includes('transfer'));
+  await page.getByLabel('Original text', { exact: true }).fill('independent');
+  assert.equal(
+    await diffTab.getByLabel('Original text', { exact: true }).inputValue(),
+    'before transfer',
+  );
+  await diffTab.close();
   await navigateTool(page, 'Hash password');
   await page
     .getByLabel('Password', { exact: true })
@@ -273,6 +307,61 @@ try {
     '64',
   );
   await generatorTab.close();
+  await navigateTool(page, 'Generate UUID');
+  await page.getByRole('radio', { name: 'v7', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Include hyphens' }).uncheck();
+  await page.waitForFunction(() =>
+    /^[0-9a-f]{12}7[0-9a-f]{3}[89ab][0-9a-f]{15}$/.test(
+      document.querySelector('#generated-secret-1')?.value,
+    ),
+  );
+  const sourceUuids = await page
+    .locator('input[id^="generated-secret-"]')
+    .evaluateAll((fields) => fields.map((field) => field.value));
+  const [uuidTab] = await Promise.all([
+    browser.context.waitForEvent('page'),
+    page.getByRole('button', { name: 'Open in tab', exact: true }).click(),
+  ]);
+  await uuidTab
+    .getByRole('heading', { name: 'Generate UUID', exact: true })
+    .waitFor();
+  await uuidTab.waitForFunction(() => {
+    const fields = [
+      ...document.querySelectorAll('input[id^="generated-secret-"]'),
+    ];
+    return (
+      fields.length === 5 &&
+      fields.every((field) =>
+        /^[0-9a-f]{12}7[0-9a-f]{3}[89ab][0-9a-f]{15}$/.test(field.value),
+      )
+    );
+  });
+  assert.equal(
+    await uuidTab
+      .getByRole('radio', { name: 'v7', exact: true })
+      .getAttribute('aria-checked'),
+    'true',
+  );
+  assert.equal(
+    await uuidTab
+      .getByRole('checkbox', { name: 'Include hyphens' })
+      .isChecked(),
+    false,
+  );
+  const freshUuids = await uuidTab
+    .locator('input[id^="generated-secret-"]')
+    .evaluateAll((fields) => fields.map((field) => field.value));
+  assert(freshUuids.every((value) => !sourceUuids.includes(value)));
+  assert(sourceUuids.every((value) => !uuidTab.url().includes(value)));
+  await page.getByRole('radio', { name: 'v4', exact: true }).click();
+  assert.equal(
+    await uuidTab
+      .getByRole('radio', { name: 'v7', exact: true })
+      .getAttribute('aria-checked'),
+    'true',
+  );
+  await uuidTab.close();
+
   await writeFile(
     'artifacts/web-browser/identity-chromium-extension.json',
     JSON.stringify(identity),
@@ -283,6 +372,7 @@ try {
   await page.evaluate(identityUiChecks, { fixtures, verifyFirst: true });
   await page.evaluate(bcryptUiChecks);
   await page.evaluate(secretGenerationUiChecks);
+  await page.evaluate(textDiffUiChecks);
   await page.evaluate(jsonUiChecks);
   await page.evaluate(characterCountUiChecks);
   assert.deepEqual(errors, []);
@@ -297,6 +387,8 @@ try {
           'Base64 and native CSP OCR',
           'One-time tab transfer and independent workspaces',
           'JSON input/options transfer and independent output recomputation',
+          'Text comparison transfers both inputs with independent recomputation',
+          'UUID tab transfer preserves version/format and generates independent results',
           'Generator tab transfer copies options without generated secrets',
           'Bcrypt tab transfer preserves inputs/cost, shows passwords, and excludes results',
           'Crop, cancel and restart, invalid region',
@@ -305,6 +397,7 @@ try {
           ...bcrypt.checks,
           ...generators.checks,
           ...json.checks,
+          ...textDiff.checks,
           ...identity.checks,
           'Identity hashing and verification after a fresh extension reload',
         ],

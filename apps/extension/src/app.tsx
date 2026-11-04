@@ -1,4 +1,5 @@
 import { CharacterCount } from './features/character-count';
+import { TextComparison } from './features/text-diff';
 import {
   SidebarProvider,
   SidebarInset,
@@ -27,7 +28,9 @@ export function App() {
     if (input.tool === 'base64') state.setBase64(input.text);
     else if (input.tool === 'character-count')
       state.setCharacterText(input.text);
-    else if (input.tool === 'json') {
+    else if (input.tool === 'text-diff') {
+      state.setTextDiff({ original: input.original, revised: input.revised });
+    } else if (input.tool === 'json') {
       state.json.setSource(input.text);
       state.json.setOptions(input.options);
     } else if (input.tool === 'identity-hash')
@@ -41,7 +44,9 @@ export function App() {
     } else if (input.tool === 'bcrypt-verify') {
       state.bcrypt.changeVerifyPassword(input.password);
       state.bcrypt.changeStoredHash(input.hash);
-    } else if (input.tool === 'api-key')
+    } else if (input.tool === 'uuid')
+      state.generators.uuid.change(input.options);
+    else if (input.tool === 'api-key')
       state.generators.api.change(input.options);
     else if (input.tool === 'jwt-key')
       state.generators.jwt.change(input.options);
@@ -78,6 +83,8 @@ export function App() {
       input = { tool: 'base64', text: state.base64 };
     if (state.tool === 'character-count')
       input = { tool: 'character-count', text: state.characterText };
+    if (state.tool === 'text-diff')
+      input = { tool: 'text-diff', ...state.textDiff };
     if (state.tool === 'json')
       input = {
         tool: 'json',
@@ -104,6 +111,8 @@ export function App() {
         password: state.identity.verifyPassword,
         hash: state.identity.storedHash,
       };
+    if (state.tool === 'uuid')
+      input = { tool: state.tool, options: state.generators.uuid.options };
     if (state.tool === 'api-key')
       input = { tool: state.tool, options: state.generators.api.options };
     if (state.tool === 'bcrypt-hash')
@@ -144,6 +153,8 @@ export function App() {
     toolContent = <Base64 />;
   } else if (state.tool === 'character-count') {
     toolContent = <CharacterCount />;
+  } else if (state.tool === 'text-diff') {
+    toolContent = <TextComparison />;
   } else if (state.tool === 'json') {
     toolContent = <JsonTools />;
   } else if (state.tool === 'ocr') {
@@ -155,6 +166,7 @@ export function App() {
       />
     );
   } else if (
+    state.tool === 'uuid' ||
     state.tool === 'api-key' ||
     state.tool === 'jwt-key' ||
     state.tool === 'random-password'

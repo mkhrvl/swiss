@@ -3,9 +3,12 @@ import type {
   JwtKeyOptions,
   RandomPasswordOptions,
 } from '../state/secret-generation';
+import type { UuidOptions } from '@swiss/core/uuid';
 import type { JsonOptions } from '@swiss/core/json';
 export type WorkspaceInput =
   | { tool: 'character-count'; text: string }
+  | { tool: 'text-diff'; original: string; revised: string }
+  | { tool: 'uuid'; options: UuidOptions }
   | { tool: 'json'; text: string; options: JsonOptions }
   | { tool: 'base64'; text: string }
   | { tool: 'ocr'; dataUrl: string }

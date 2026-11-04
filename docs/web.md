@@ -50,6 +50,10 @@ The official NuGet MCP server is pinned to `NuGet.Mcp.Server@1.4.16` and runs fr
 
 Identity and bcrypt password fields use labelled shadcn Input controls with `type="text"`, autocomplete off and spellcheck disabled. Passwords are visible in both hashing and verification, including after navigation and extension transfer. There are no reveal toggles or visibility state; Clear erases inputs and results.
 
+## UUID generation
+
+`@swiss/core/uuid` generates RFC 9562 v4 and v7 UUIDs using Web Crypto exclusively. v7 stores the 48-bit Unix millisecond timestamp in big-endian order, with 74 random bits; it does not promise monotonic ordering within a millisecond or across clock rollback. Both versions set the RFC variant and version bits, use lowercase hex, and support standard hyphens or compact 32-character output. Default to v4 with hyphens. Hosts reuse their five-result generator state and controls, keeping version/format/results in memory and transferring options only. Core tests cover the RFC v7 example, bit layout, timestamp bounds, formats and secure randomness; shared browser checks cover both versions/formats, regeneration, copying, navigation and offline use.
+
 ## Secret generation
 
 `@swiss/core/secret-generation` owns API token generation, JWT HMAC key sizes/encodings, and password rules. Use Web Crypto’s `getRandomValues` exclusively, with no insecure fallback. API keys accept 16–128 random bytes; JWT HS256/HS384/HS512 use 32/48/64 bytes (RFC 7518 section 3.2). Encodings are Base64url without padding, standard Base64, and lowercase Hex. These are local secret values, not provisioned service credentials or signed JWTs.

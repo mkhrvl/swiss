@@ -26,6 +26,12 @@ Syntax feedback reports the first error with a one-based line and column; **Go t
 
 JSON accepts at most 262,144 UTF-16 characters and 128 nesting levels. Formatted output is limited to 2,097,152 characters; use Minify or less indentation if formatting exceeds that limit. Processing works offline without additional downloads. Input and options survive tool navigation in memory. Extension **Open in tab** transfers only input and formatting options to an independent workspace, which recomputes its output; later edits are independent.
 
+## Text comparison
+
+Choose **Compare text** and paste **Original text** and **Revised text**. Differences update as you type, comparing whole words, punctuation, case, spaces and line breaks exactly. Removed text is struck through in red; added text is underlined in green. The selectable result includes unchanged context and a character count of additions/removals (Unicode code points). Whitespace-only edits are included. **Swap texts** reverses the comparison; **Clear** erases both inputs and the result.
+
+Each input accepts up to 32,768 UTF-16 characters. Larger inputs show a validation message without truncating your text. Large or dense changes are grouped into broader replacement blocks with a notice, keeping comparison responsive; these blocks can include unchanged text. Inputs stay in memory across navigation and work offline without downloads. Extension **Open in tab** transfers both inputs into an independent workspace, which recomputes the differences.
+
 ## OCR
 
 OCR loads automatically when you choose **Extract text**. The PWA caches about 15 MB of local assets on first use; the extension bundles the engine and pinned English model, including about 3 MB of model data, so its first operation works offline. The model's SHA-256 is checked before use. Recognition runs locally, accepts PNG/JPEG/WebP up to 20 MB and 20 million pixels, and supports a region in source-image pixels. Cancel stops loading or terminates the OCR worker; a later job retries automatically. The PWA reloads missing or damaged model data when online.
@@ -35,6 +41,12 @@ OCR loads automatically when you choose **Extract text**. The PWA caches about 1
 Choose **Hash password** to generate a salted Identity V3 hash, or **Verify password** to check an existing V2/V3 hash after a 250 ms typing pause. Passwords are visible, and **Clear** erases the fields. Password spaces and Unicode are preserved exactly. Legacy matches show upgrade advice. Hashes over 4,096 encoded characters, over 1,000,000 PBKDF2 iterations, or over 64 subkey bytes are rejected before expensive work. **Cancel** stops the dedicated worker; the next operation initializes a fresh runtime. Hashing and verification run locally through Microsoft's `PasswordHasher<TUser>`.
 
 Identity loads automatically on the first hash or verification. The extension bundles its runtime; the PWA caches about 7.3 MB on first use and verifies cached files before using them in a new workspace. Missing or damaged files are replaced automatically when online. After a tool's first successful use, its cached assets support offline reloads; browser storage eviction requires going online for that tool again.
+
+## UUID generator
+
+Choose **Generate UUID** in the **Generators** group. UUID v4 is selected by default and uses cryptographically secure random bits. UUID v7 includes the current Unix timestamp in milliseconds and a cryptographically random tail, following RFC 9562. v7 values sort by timestamp across milliseconds; values generated within one millisecond are randomly ordered. The timestamp is visible in v7 values, so use v4 when you do not want to expose generation time.
+
+**Include hyphens** is on by default, producing lowercase UUIDs in the standard 8-4-4-4-12 format. Turn it off for 32 lowercase hexadecimal characters. Opening the tool generates five results automatically; changing either option regenerates all five. **Generate UUID** replaces the batch, while each row has a regenerate icon and a COPY button with two-second COPIED feedback. Settings and results survive tool navigation in memory. The tool works offline without downloads. Extension **Open in tab** transfers the version and hyphen option only; the new workspace generates fresh UUIDs.
 
 ## Secret generators
 

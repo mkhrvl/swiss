@@ -1,4 +1,5 @@
 import { CharacterCount } from '../features/character-count';
+import { TextComparison } from '../features/text-diff';
 import {
   SidebarProvider,
   SidebarInset,
@@ -30,6 +31,8 @@ export function App() {
     toolContent = <Base64 />;
   } else if (state.tool === 'character-count') {
     toolContent = <CharacterCount />;
+  } else if (state.tool === 'text-diff') {
+    toolContent = <TextComparison />;
   } else if (state.tool === 'json') {
     toolContent = <JsonTools />;
   } else if (state.tool === 'ocr') {
@@ -41,6 +44,7 @@ export function App() {
       />
     );
   } else if (
+    state.tool === 'uuid' ||
     state.tool === 'api-key' ||
     state.tool === 'jwt-key' ||
     state.tool === 'random-password'

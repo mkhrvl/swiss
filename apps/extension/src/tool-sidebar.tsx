@@ -2,12 +2,14 @@ import {
   CaseSensitive,
   Braces,
   FileJson,
+  FileDiff,
   Hash,
   ScanText,
   ShieldCheck,
   KeyRound,
   KeySquare,
   Dices,
+  Fingerprint,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -33,6 +35,7 @@ const toolGroups = [
       { id: 'ocr', label: 'English OCR', icon: ScanText },
       { id: 'character-count', label: 'Count characters', icon: CaseSensitive },
       { id: 'json', label: 'JSON', icon: FileJson },
+      { id: 'text-diff', label: 'Compare text', icon: FileDiff },
     ],
   },
   {
@@ -52,6 +55,7 @@ const toolGroups = [
   {
     label: 'Generators',
     tools: [
+      { id: 'uuid', label: 'Generate UUID', icon: Fingerprint },
       { id: 'api-key', label: 'Generate API key', icon: KeyRound },
       { id: 'jwt-key', label: 'Generate JWT signing key', icon: KeySquare },
       { id: 'random-password', label: 'Generate password', icon: Dices },

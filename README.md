@@ -20,7 +20,7 @@
   <a href="ARCHITECTURE.md">Architecture</a>
 </p>
 
-Swiss (as in Swiss Army knife) is a developer toolbox for decoding Base64, formatting JSON, extracting text from images, hashing passwords, and generating secrets, all without leaving your browser.
+Swiss (as in Swiss Army knife) is a developer toolbox for decoding Base64, formatting JSON, comparing text, extracting text from images, hashing passwords, and generating secrets, all without leaving your browser.
 
 > **Everything stays on your device.** Swiss has no backend, analytics, or remote processing. Inputs and results live in memory and are cleared when you close the workspace.
 
@@ -31,9 +31,11 @@ Swiss (as in Swiss Army knife) is a developer toolbox for decoding Base64, forma
 | **Base64**             | Decode standard or URL-safe Base64 to text, or to hex for binary.      |
 | **Character count**    | Count pasted text live, including spaces, emoji, and combined letters. |
 | **JSON**               | Validate, format, and minify with syntax highlighting.                 |
+| **Text comparison**    | Compare two texts with highlighted additions and removals.             |
 | **OCR**                | Extract English text from an image or a selected region.               |
 | **Identity passwords** | Generate and verify ASP.NET Identity password hashes.                  |
 | **Bcrypt passwords**   | Generate and verify bcrypt hashes with cost guidance.                  |
+| **UUIDs**              | Generate UUID v4 or v7, with or without hyphens.                        |
 | **API keys**           | Generate random tokens in Base64url, Base64, or hex.                   |
 | **JWT signing keys**   | Generate HMAC keys for HS256, HS384, and HS512.                        |
 | **Random passwords**   | Generate 8–128 character passwords from the character sets you choose. |

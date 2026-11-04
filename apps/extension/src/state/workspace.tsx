@@ -35,12 +35,14 @@ export type WorkspaceImage = {
   height: number;
 };
 function useWorkspaceState() {
+  const [textDiff, setTextDiff] = useState({ original: '', revised: '' });
   const json = useJsonTools();
   const identity = useIdentityPasswords();
   const generators = useSecretGenerators();
   const bcrypt = useBcryptPasswords();
   const [tool, setTool] = useState<
     | 'character-count'
+    | 'text-diff'
     | 'json'
     | 'base64'
     | 'ocr'
@@ -51,6 +53,7 @@ function useWorkspaceState() {
     | 'api-key'
     | 'jwt-key'
     | 'random-password'
+    | 'uuid'
   >('base64');
   const [characterText, setCharacterText] = useState('');
   const [base64, setBase64] = useState('');
@@ -180,6 +183,8 @@ function useWorkspaceState() {
     }
   }
   return {
+    textDiff,
+    setTextDiff,
     json,
     identity,
     generators,
