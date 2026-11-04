@@ -13,7 +13,8 @@
     "./ocr/worker": "./src/ocr/worker.ts",
     "./secret-generation": "./src/secret-generation/index.ts",
     "./json": "./src/json/index.ts",
-    "./text-diff": "./src/text-diff/index.ts"
+    "./text-diff": "./src/text-diff/index.ts",
+    "./uuid": "./src/uuid/index.ts"
   },
   "scripts": {
     "check": "tsc -p tsconfig.json"

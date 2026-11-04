@@ -41,7 +41,9 @@ export function App() {
     } else if (input.tool === 'bcrypt-verify') {
       state.bcrypt.changeVerifyPassword(input.password);
       state.bcrypt.changeStoredHash(input.hash);
-    } else if (input.tool === 'api-key')
+    } else if (input.tool === 'uuid')
+      state.generators.uuid.change(input.options);
+    else if (input.tool === 'api-key')
       state.generators.api.change(input.options);
     else if (input.tool === 'jwt-key')
       state.generators.jwt.change(input.options);
@@ -104,6 +106,8 @@ export function App() {
         password: state.identity.verifyPassword,
         hash: state.identity.storedHash,
       };
+    if (state.tool === 'uuid')
+      input = { tool: state.tool, options: state.generators.uuid.options };
     if (state.tool === 'api-key')
       input = { tool: state.tool, options: state.generators.api.options };
     if (state.tool === 'bcrypt-hash')
@@ -155,6 +159,7 @@ export function App() {
       />
     );
   } else if (
+    state.tool === 'uuid' ||
     state.tool === 'api-key' ||
     state.tool === 'jwt-key' ||
     state.tool === 'random-password'

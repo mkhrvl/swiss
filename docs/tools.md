@@ -36,6 +36,12 @@ Choose **Hash password** to generate a salted Identity V3 hash, or **Verify pass
 
 Identity loads automatically on the first hash or verification. The extension bundles its runtime; the PWA caches about 7.3 MB on first use and verifies cached files before using them in a new workspace. Missing or damaged files are replaced automatically when online. After a tool's first successful use, its cached assets support offline reloads; browser storage eviction requires going online for that tool again.
 
+## UUID generator
+
+Choose **Generate UUID** in the **Generators** group. UUID v4 is selected by default and uses cryptographically secure random bits. UUID v7 includes the current Unix timestamp in milliseconds and a cryptographically random tail, following RFC 9562. v7 values sort by timestamp across milliseconds; values generated within one millisecond are randomly ordered. The timestamp is visible in v7 values, so use v4 when you do not want to expose generation time.
+
+**Include hyphens** is on by default, producing lowercase UUIDs in the standard 8-4-4-4-12 format. Turn it off for 32 lowercase hexadecimal characters. Opening the tool generates five results automatically; changing either option regenerates all five. **Generate UUID** replaces the batch, while each row has a regenerate icon and a COPY button with two-second COPIED feedback. Settings and results survive tool navigation in memory. The tool works offline without downloads. Extension **Open in tab** transfers the version and hyphen option only; the new workspace generates fresh UUIDs.
+
 ## Secret generators
 
 The **Generators** group provides API keys, JWT signing keys, and random passwords. API keys default to 32 cryptographically random bytes encoded as unpadded Base64url; choose a multiple-of-16 preset from 16–128 bytes or enter a custom whole-number count, and select Base64url, Base64, or Hex. They are random tokens for your own API, not credentials registered with an external service. JWT signing keys support HS256/HS384/HS512 with 32/48/64 random bytes respectively, defaulting to Base64. Decode the chosen encoding to raw bytes before supplying a JWT signing key to your library.

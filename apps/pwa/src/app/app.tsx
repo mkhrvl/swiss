@@ -41,6 +41,7 @@ export function App() {
       />
     );
   } else if (
+    state.tool === 'uuid' ||
     state.tool === 'api-key' ||
     state.tool === 'jwt-key' ||
     state.tool === 'random-password'
