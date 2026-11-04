@@ -28,7 +28,7 @@ JSON accepts at most 262,144 UTF-16 characters and 128 nesting levels. Formatted
 
 ## Text comparison
 
-Choose **Compare text** and paste **Original text** and **Revised text**. Differences update as you type, comparing whole words, punctuation, case, spaces and line breaks exactly. Removed text is struck through in red; added text is underlined in green. The selectable result includes unchanged context and a character count of additions/removals (Unicode code points). Whitespace-only edits are included. **Swap texts** reverses the comparison; **Clear** erases both inputs and the result.
+Choose **Compare text** and paste **Original text** and **Revised text**. Differences update as you type, comparing individual characters, punctuation, case, spaces and line breaks exactly. Small edits within words, UUIDs and other identifiers highlight only the changed characters. Removed text is struck through in red; added text is underlined in green. The selectable result includes unchanged context and a character count of additions/removals (Unicode code points). Whitespace-only edits are included. **Swap texts** reverses the comparison; **Clear** erases both inputs and the result.
 
 Each input accepts up to 32,768 UTF-16 characters. Larger inputs show a validation message without truncating your text. Large or dense changes are grouped into broader replacement blocks with a notice, keeping comparison responsive; these blocks can include unchanged text. Inputs stay in memory across navigation and work offline without downloads. Extension **Open in tab** transfers both inputs into an independent workspace, which recomputes the differences.
 

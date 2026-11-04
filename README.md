@@ -31,7 +31,7 @@ Swiss (as in Swiss Army knife) is a developer toolbox for decoding Base64, forma
 | **Base64**             | Decode standard or URL-safe Base64 to text, or to hex for binary.      |
 | **Character count**    | Count pasted text live, including spaces, emoji, and combined letters. |
 | **JSON**               | Validate, format, and minify with syntax highlighting.                 |
-| **Text comparison**    | Compare two texts with highlighted additions and removals.             |
+| **Text comparison**    | Compare texts with character-level additions and removals.             |
 | **OCR**                | Extract English text from an image or a selected region.               |
 | **Identity passwords** | Generate and verify ASP.NET Identity password hashes.                  |
 | **Bcrypt passwords**   | Generate and verify bcrypt hashes with cost guidance.                  |

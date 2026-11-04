@@ -8,6 +8,67 @@ function diff(original: string, revised: string) {
 }
 
 describe('text comparison', () => {
+  it('highlights only the missing final character of a UUID', () => {
+    const original = '96356d0f4a34466a930982ba8a4e0cbe';
+    expect(diff(original, original.slice(0, -1))).toEqual({
+      segments: [
+        { kind: 'equal', text: original.slice(0, -1) },
+        { kind: 'removed', text: 'e' },
+      ],
+      added: 0,
+      removed: 1,
+      grouped: false,
+    });
+  });
+
+  it.each([
+    ['abc123def', 'abc923def', '1', '9'],
+    ['word', 'wOrd', 'o', 'O'],
+    ['a猫🔒b', 'a猫🔑b', '🔒', '🔑'],
+  ])(
+    'isolates changed characters inside %s',
+    (original, revised, removed, added) => {
+      const result = diff(original, revised);
+      expect(result.added).toBe(1);
+      expect(result.removed).toBe(1);
+      expect(
+        result.segments.filter((segment) => segment.kind !== 'equal'),
+      ).toEqual([
+        { kind: 'removed', text: removed },
+        { kind: 'added', text: added },
+      ]);
+    },
+  );
+
+  it('isolates an insertion and separate edits within an identifier', () => {
+    expect(diff('abc123def', 'abc0123def').segments).toEqual([
+      { kind: 'equal', text: 'abc' },
+      { kind: 'added', text: '0' },
+      { kind: 'equal', text: '123def' },
+    ]);
+    expect(diff('abc123def', 'aXc123dYf')).toMatchObject({
+      added: 2,
+      removed: 2,
+      grouped: false,
+    });
+    expect(diff('a b', 'a  b').segments).toEqual([
+      { kind: 'equal', text: 'a ' },
+      { kind: 'added', text: ' ' },
+      { kind: 'equal', text: 'b' },
+    ]);
+  });
+
+  it('compares long identifiers at the input limit without grouping a small edit', () => {
+    const original = 'x'.repeat(MAX_TEXT_DIFF_INPUT_LENGTH);
+    expect(
+      diff(original, original.slice(0, 16_384) + 'y' + original.slice(16_385)),
+    ).toMatchObject({
+      added: 1,
+      removed: 1,
+      grouped: false,
+    });
+  });
+
   it('identifies word replacements and keeps surrounding text', () => {
     expect(diff('The old fox.', 'The new fox.')).toEqual({
       segments: [
@@ -39,9 +100,9 @@ describe('text comparison', () => {
     ).toEqual([
       { kind: 'removed', text: 'one' },
       { kind: 'added', text: 'a' },
-      { kind: 'equal', text: ' cat and ' },
-      { kind: 'removed', text: 'two' },
-      { kind: 'added', text: 'three' },
+      { kind: 'equal', text: ' cat and t' },
+      { kind: 'removed', text: 'wo' },
+      { kind: 'added', text: 'hree' },
       { kind: 'equal', text: ' dogs' },
     ]);
   });

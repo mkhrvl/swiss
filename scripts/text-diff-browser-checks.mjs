@@ -40,6 +40,12 @@ export async function textDiffUiChecks() {
     field(side).dispatchEvent(new Event('input', { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
   }
+  // Wait for the responsive sidebar to finish switching after a viewport change.
+  await wait(
+    () =>
+      Boolean(document.querySelector('[data-slot="sidebar-gap"]')) ===
+      matchMedia('(min-width: 768px)').matches,
+  );
   await navigate('Compare text');
   if (!button('Clear').disabled) button('Clear').click();
   await wait(() => status() === 'Enter text on either side to compare.');
@@ -84,7 +90,27 @@ export async function textDiffUiChecks() {
   );
   await fill('original', 'a b\n');
   await fill('revised', 'a  b\n');
-  await wait(() => result()?.querySelector('ins')?.textContent === '  ');
+  await wait(() => result()?.querySelector('ins')?.textContent === ' ');
+  const uuid = '96356d0f4a34466a930982ba8a4e0cbe';
+  await fill('original', uuid);
+  await fill('revised', uuid.slice(0, -1));
+  await wait(() => status() === '0 characters added · 1 characters removed');
+  assert(
+    result().querySelector('del').textContent === 'e',
+    'UUID deletion highlighted unchanged characters',
+  );
+  assert(!result().querySelector('ins'), 'UUID deletion claims text was added');
+  assert(
+    result().textContent === uuid,
+    'UUID deletion duplicated unchanged context',
+  );
+  await fill('revised', uuid.slice(0, -1) + 'f');
+  await wait(() => status() === '1 characters added · 1 characters removed');
+  assert(
+    result().querySelector('del').textContent === 'e' &&
+      result().querySelector('ins').textContent === 'f',
+    'UUID replacement highlighted the entire identifier',
+  );
   await fill('original', '');
   await fill('revised', '<img src=x onerror=alert(1)>🔑');
   await wait(() =>
@@ -122,7 +148,7 @@ export async function textDiffUiChecks() {
   );
   return {
     checks: [
-      'Live text comparison: word changes, whitespace, identical/empty text, escaped markup and bounded large input',
+      'Live text comparison: exact character edits within words/UUIDs, whitespace, identical/empty text, escaped markup and bounded large input',
       'Comparison swap, clear, navigation state, narrow layout and offline use without persistence',
     ],
   };

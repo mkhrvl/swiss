@@ -141,35 +141,33 @@ try {
   );
   await jsonTab.close();
   await navigateTool(page, 'Compare text');
-  await page
-    .getByLabel('Original text', { exact: true })
-    .fill('before transfer');
-  await page.getByLabel('Revised text', { exact: true }).fill('after transfer');
+  await page.getByLabel('Original text', { exact: true }).fill('old transfer');
+  await page.getByLabel('Revised text', { exact: true }).fill('new transfer');
   const [diffTab] = await Promise.all([
     browser.context.waitForEvent('page'),
     page.getByRole('button', { name: 'Open in tab', exact: true }).click(),
   ]);
   await diffTab.waitForFunction(
     () =>
-      document.querySelector('#text-diff-revised')?.value === 'after transfer',
+      document.querySelector('#text-diff-revised')?.value === 'new transfer',
   );
   assert.equal(
     await diffTab.getByLabel('Original text', { exact: true }).inputValue(),
-    'before transfer',
+    'old transfer',
   );
   assert.equal(
     await diffTab.locator('#text-diff-result del').textContent(),
-    'before',
+    'old',
   );
   assert.equal(
     await diffTab.locator('#text-diff-result ins').textContent(),
-    'after',
+    'new',
   );
   assert(!diffTab.url().includes('transfer'));
   await page.getByLabel('Original text', { exact: true }).fill('independent');
   assert.equal(
     await diffTab.getByLabel('Original text', { exact: true }).inputValue(),
-    'before transfer',
+    'old transfer',
   );
   await diffTab.close();
   await navigateTool(page, 'Hash password');
@@ -307,6 +305,8 @@ try {
     '64',
   );
   await generatorTab.close();
+  // Editing random bytes opens its presets; dismiss them before navigation.
+  await page.keyboard.press('Escape');
   await navigateTool(page, 'Generate UUID');
   await page.getByRole('radio', { name: 'v7', exact: true }).click();
   await page.getByRole('checkbox', { name: 'Include hyphens' }).uncheck();

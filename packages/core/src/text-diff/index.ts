@@ -16,11 +16,6 @@ export type TextDiff = {
 };
 export type TextDiffError = { code: 'input-too-large' };
 
-function tokenize(text: string): string[] {
-  // Keep words together, preserving all spacing, line endings and code points.
-  return text.match(/[\p{L}\p{N}\p{M}_]+|[^\S\r\n]+|\r\n|[\s\S]/gu) ?? [];
-}
-
 // Myers' shortest edit path: long unchanged runs cost linear work, even when
 // edits occur at both ends. Bound both search work and trace storage (~2 MB).
 function findChanges(
@@ -91,7 +86,7 @@ function backtrack(
   return changes.reverse();
 }
 
-/** Exact, word-oriented comparison with bounded time, memory and render size. */
+/** Exact, character-level comparison with bounded time, memory and render size. */
 export function compareTexts(
   original: string,
   revised: string,
@@ -102,8 +97,9 @@ export function compareTexts(
   ) {
     return { ok: false, error: { code: 'input-too-large' } };
   }
-  const before = tokenize(original);
-  const after = tokenize(revised);
+  // Compare Unicode code points so small edits within words and IDs stay visible.
+  const before = Array.from(original);
+  const after = Array.from(revised);
   let start = 0;
   while (start < before.length && before[start] === after[start]) start++;
   let endBefore = before.length;
@@ -137,7 +133,7 @@ export function compareTexts(
       after.slice(start, endAfter),
     );
     if (changes) {
-      // At most 512 changed tokens, so merged output has at most 1,027 spans.
+      // At most 512 changed code points, so merged output has at most 1,027 spans.
       for (const change of changes) append(change.kind, change.text);
     } else {
       grouped = true;

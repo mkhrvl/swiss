@@ -48,8 +48,8 @@ export function TextComparison() {
     <section aria-labelledby="text-diff-title" className="@container/text-diff">
       <h1 id="text-diff-title">Compare text</h1>
       <p className="description">
-        See what changed between two versions. Words, spaces and line breaks are
-        compared exactly.
+        See what changed between two versions. Characters, spaces and line
+        breaks are compared exactly.
       </p>
       <div className="mb-4 flex flex-wrap gap-2">
         <Button
