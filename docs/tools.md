@@ -20,6 +20,12 @@ Syntax feedback reports the first error with a one-based line and column; **Go t
 
 JSON accepts at most 262,144 UTF-16 characters and 128 nesting levels. Formatted output is limited to 2,097,152 characters; use Minify or less indentation if formatting exceeds that limit. Processing works offline without additional downloads. Input and options survive tool navigation in memory. Extension **Open in tab** transfers only input and formatting options to an independent workspace, which recomputes its output; later edits are independent.
 
+## Text comparison
+
+Choose **Compare text** and paste **Original text** and **Revised text**. Differences update as you type, comparing whole words, punctuation, case, spaces and line breaks exactly. Removed text is struck through in red; added text is underlined in green. The selectable result includes unchanged context and a character count of additions/removals (Unicode code points). Whitespace-only edits are included. **Swap texts** reverses the comparison; **Clear** erases both inputs and the result.
+
+Each input accepts up to 32,768 UTF-16 characters. Larger inputs show a validation message without truncating your text. Large or dense changes are grouped into broader replacement blocks with a notice, keeping comparison responsive; these blocks can include unchanged text. Inputs stay in memory across navigation and work offline without downloads. Extension **Open in tab** transfers both inputs into an independent workspace, which recomputes the differences.
+
 ## OCR
 
 OCR loads automatically when you choose **Extract text**. The PWA caches about 15 MB of local assets on first use; the extension bundles the engine and pinned English model, including about 3 MB of model data, so its first operation works offline. The model's SHA-256 is checked before use. Recognition runs locally, accepts PNG/JPEG/WebP up to 20 MB and 20 million pixels, and supports a region in source-image pixels. Cancel stops loading or terminates the OCR worker; a later job retries automatically. The PWA reloads missing or damaged model data when online.

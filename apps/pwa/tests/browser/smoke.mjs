@@ -1,3 +1,4 @@
+import { textDiffUiChecks } from '../../../../scripts/text-diff-browser-checks.mjs';
 import { jsonUiChecks } from '../../../../scripts/json-browser-checks.mjs';
 import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
@@ -74,6 +75,7 @@ try {
   });
   const bcrypt = await page.evaluate(bcryptUiChecks);
   const generators = await page.evaluate(secretGenerationUiChecks);
+  const textDiff = await page.evaluate(textDiffUiChecks);
   const json = await page.evaluate(jsonUiChecks);
   await page.screenshot({
     path: 'artifacts/web-browser/pwa-json.png',
@@ -160,6 +162,7 @@ try {
   await page.evaluate(identityUiChecks, { fixtures, verifyFirst: true });
   await page.evaluate(bcryptUiChecks);
   await page.evaluate(secretGenerationUiChecks);
+  await page.evaluate(textDiffUiChecks);
   await page.evaluate(jsonUiChecks);
   const storage = await page.evaluate(async () => ({
     local: localStorage.length,
@@ -192,6 +195,7 @@ try {
           ...bcrypt.checks,
           ...generators.checks,
           ...json.checks,
+          ...textDiff.checks,
           ...identity.checks,
           'Identity hashing and verification after a fresh offline reload',
         ],

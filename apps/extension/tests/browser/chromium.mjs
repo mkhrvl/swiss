@@ -1,3 +1,4 @@
+import { textDiffUiChecks } from '../../../../scripts/text-diff-browser-checks.mjs';
 import { jsonUiChecks } from '../../../../scripts/json-browser-checks.mjs';
 import { bcryptUiChecks } from '../../../../scripts/bcrypt-browser-checks.mjs';
 import { secretGenerationUiChecks } from '../../../../scripts/secret-generation-browser-checks.mjs';
@@ -65,6 +66,7 @@ try {
   });
   const bcrypt = await page.evaluate(bcryptUiChecks);
   const generators = await page.evaluate(secretGenerationUiChecks);
+  const textDiff = await page.evaluate(textDiffUiChecks);
   const json = await page.evaluate(jsonUiChecks);
   await page.screenshot({
     path: 'artifacts/web-browser/extension-json.png',
@@ -104,6 +106,38 @@ try {
     jsonSource,
   );
   await jsonTab.close();
+  await navigateTool(page, 'Compare text');
+  await page
+    .getByLabel('Original text', { exact: true })
+    .fill('before transfer');
+  await page.getByLabel('Revised text', { exact: true }).fill('after transfer');
+  const [diffTab] = await Promise.all([
+    browser.context.waitForEvent('page'),
+    page.getByRole('button', { name: 'Open in tab', exact: true }).click(),
+  ]);
+  await diffTab.waitForFunction(
+    () =>
+      document.querySelector('#text-diff-revised')?.value === 'after transfer',
+  );
+  assert.equal(
+    await diffTab.getByLabel('Original text', { exact: true }).inputValue(),
+    'before transfer',
+  );
+  assert.equal(
+    await diffTab.locator('#text-diff-result del').textContent(),
+    'before',
+  );
+  assert.equal(
+    await diffTab.locator('#text-diff-result ins').textContent(),
+    'after',
+  );
+  assert(!diffTab.url().includes('transfer'));
+  await page.getByLabel('Original text', { exact: true }).fill('independent');
+  assert.equal(
+    await diffTab.getByLabel('Original text', { exact: true }).inputValue(),
+    'before transfer',
+  );
+  await diffTab.close();
   await navigateTool(page, 'Hash password');
   await page
     .getByLabel('Password', { exact: true })
@@ -249,6 +283,7 @@ try {
   await page.evaluate(identityUiChecks, { fixtures, verifyFirst: true });
   await page.evaluate(bcryptUiChecks);
   await page.evaluate(secretGenerationUiChecks);
+  await page.evaluate(textDiffUiChecks);
   await page.evaluate(jsonUiChecks);
   assert.deepEqual(errors, []);
   console.log(
@@ -262,6 +297,7 @@ try {
           'Base64 and native CSP OCR',
           'One-time tab transfer and independent workspaces',
           'JSON input/options transfer and independent output recomputation',
+          'Text comparison transfers both inputs with independent recomputation',
           'Generator tab transfer copies options without generated secrets',
           'Bcrypt tab transfer preserves inputs/cost, shows passwords, and excludes results',
           'Crop, cancel and restart, invalid region',
@@ -270,6 +306,7 @@ try {
           ...bcrypt.checks,
           ...generators.checks,
           ...json.checks,
+          ...textDiff.checks,
           ...identity.checks,
           'Identity hashing and verification after a fresh extension reload',
         ],

@@ -1,3 +1,4 @@
+import { TextComparison } from './features/text-diff';
 import {
   SidebarProvider,
   SidebarInset,
@@ -24,7 +25,9 @@ export function App() {
   async function consume(input: WorkspaceInput) {
     state.setTool(input.tool);
     if (input.tool === 'base64') state.setBase64(input.text);
-    else if (input.tool === 'json') {
+    else if (input.tool === 'text-diff') {
+      state.setTextDiff({ original: input.original, revised: input.revised });
+    } else if (input.tool === 'json') {
       state.json.setSource(input.text);
       state.json.setOptions(input.options);
     } else if (input.tool === 'identity-hash')
@@ -73,6 +76,8 @@ export function App() {
     let input: WorkspaceInput | undefined;
     if (state.tool === 'base64' && state.base64)
       input = { tool: 'base64', text: state.base64 };
+    if (state.tool === 'text-diff')
+      input = { tool: 'text-diff', ...state.textDiff };
     if (state.tool === 'json')
       input = {
         tool: 'json',
@@ -137,6 +142,8 @@ export function App() {
   let toolContent;
   if (state.tool === 'base64') {
     toolContent = <Base64 />;
+  } else if (state.tool === 'text-diff') {
+    toolContent = <TextComparison />;
   } else if (state.tool === 'json') {
     toolContent = <JsonTools />;
   } else if (state.tool === 'ocr') {

@@ -35,11 +35,13 @@ export type WorkspaceImage = {
   height: number;
 };
 function useWorkspaceState() {
+  const [textDiff, setTextDiff] = useState({ original: '', revised: '' });
   const json = useJsonTools();
   const identity = useIdentityPasswords();
   const generators = useSecretGenerators();
   const bcrypt = useBcryptPasswords();
   const [tool, setTool] = useState<
+    | 'text-diff'
     | 'json'
     | 'base64'
     | 'ocr'
@@ -178,6 +180,8 @@ function useWorkspaceState() {
     }
   }
   return {
+    textDiff,
+    setTextDiff,
     json,
     identity,
     generators,

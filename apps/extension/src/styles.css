@@ -88,3 +88,62 @@ h1 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+.text-diff-surface {
+  position: relative;
+  min-width: 0;
+}
+.text-diff-control,
+.text-diff-highlight {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.75;
+  letter-spacing: normal;
+  tab-size: 4;
+  overflow-wrap: anywhere;
+  white-space: break-spaces;
+  padding: 12px;
+}
+.text-diff-highlight {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  background: var(--output);
+}
+.text-diff-control {
+  position: relative;
+  color: transparent;
+  background: transparent;
+}
+.text-diff-control::selection {
+  color: var(--foreground);
+  background: var(--accent);
+}
+.text-diff-added {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  text-decoration: underline;
+}
+.text-diff-removed {
+  color: var(--destructive);
+  background: color-mix(in srgb, var(--destructive) 15%, transparent);
+  text-decoration: line-through;
+}
+@media (forced-colors: active) {
+  .text-diff-highlight {
+    display: none;
+  }
+  .text-diff-control {
+    color: CanvasText;
+  }
+  .text-diff-added,
+  .text-diff-removed {
+    color: CanvasText;
+    background: Canvas;
+  }
+}

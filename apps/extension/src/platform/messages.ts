@@ -5,6 +5,7 @@ import type {
 } from '../state/secret-generation';
 import type { JsonOptions } from '@swiss/core/json';
 export type WorkspaceInput =
+  | { tool: 'text-diff'; original: string; revised: string }
   | { tool: 'json'; text: string; options: JsonOptions }
   | { tool: 'base64'; text: string }
   | { tool: 'ocr'; dataUrl: string }

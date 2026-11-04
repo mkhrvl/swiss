@@ -1,3 +1,4 @@
+import { TextComparison } from '../features/text-diff';
 import {
   SidebarProvider,
   SidebarInset,
@@ -27,6 +28,8 @@ export function App() {
   let toolContent;
   if (state.tool === 'base64') {
     toolContent = <Base64 />;
+  } else if (state.tool === 'text-diff') {
+    toolContent = <TextComparison />;
   } else if (state.tool === 'json') {
     toolContent = <JsonTools />;
   } else if (state.tool === 'ocr') {
