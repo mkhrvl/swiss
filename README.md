@@ -33,6 +33,7 @@ Swiss (as in Swiss Army knife) is a developer toolbox for decoding Base64, forma
 | **OCR**                | Extract English text from an image or a selected region.               |
 | **Identity passwords** | Generate and verify ASP.NET Identity password hashes.                  |
 | **Bcrypt passwords**   | Generate and verify bcrypt hashes with cost guidance.                  |
+| **UUIDs**              | Generate UUID v4 or v7, with or without hyphens.                        |
 | **API keys**           | Generate random tokens in Base64url, Base64, or hex.                   |
 | **JWT signing keys**   | Generate HMAC keys for HS256, HS384, and HS512.                        |
 | **Random passwords**   | Generate 8–128 character passwords from the character sets you choose. |

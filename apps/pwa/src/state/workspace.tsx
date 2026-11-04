@@ -50,6 +50,7 @@ function useWorkspaceState() {
     | 'api-key'
     | 'jwt-key'
     | 'random-password'
+    | 'uuid'
   >('base64');
   const [base64, setBase64] = useState('');
   const [image, setImage] = useState<WorkspaceImage>();

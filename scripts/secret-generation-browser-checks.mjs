@@ -95,6 +95,99 @@ export async function secretGenerationUiChecks() {
       document.documentElement.scrollWidth <= innerWidth,
       'Generator overflowed its workspace',
     );
+  await navigate('Generate UUID');
+  const uuidMatches = (version, hyphens) => {
+    if (hyphens)
+      return new RegExp(
+        `^[0-9a-f]{8}-[0-9a-f]{4}-${version}[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`,
+      );
+    return new RegExp(`^[0-9a-f]{12}${version}[0-9a-f]{3}[89ab][0-9a-f]{15}$`);
+  };
+  await wait(
+    () =>
+      values().length === 5 &&
+      values().every((value) => uuidMatches(4, true).test(value)),
+  );
+  assert(
+    document.querySelector('#uuid-hyphens').getAttribute('aria-checked') ===
+      'true',
+    'UUID hyphens should default on',
+  );
+  assert(
+    button('v4').getAttribute('aria-checked') === 'true',
+    'UUID should default to v4',
+  );
+  await changeAndWait(
+    () => button('v7').click(),
+    (value) => uuidMatches(7, true).test(value),
+  );
+  await changeAndWait(
+    () => document.querySelector('#uuid-hyphens').click(),
+    (value) => uuidMatches(7, false).test(value),
+  );
+  const uuidBatch = values();
+  await navigate('Generate API key');
+  await navigate('Generate UUID');
+  assert(
+    values().every((value, index) => value === uuidBatch[index]),
+    'Navigation replaced UUID results',
+  );
+  assert(
+    button('v7').getAttribute('aria-checked') === 'true' &&
+      document.querySelector('#uuid-hyphens').getAttribute('aria-checked') ===
+        'false',
+    'Navigation lost UUID options',
+  );
+  await generate('Generate UUID');
+  const beforeUuidRow = values();
+  button('Regenerate UUID 3').click();
+  await wait(() => secret(2).value !== beforeUuidRow[2]);
+  assert(
+    values().every(
+      (value, index) => index === 2 || value === beforeUuidRow[index],
+    ),
+    'UUID row regeneration replaced another row',
+  );
+  assert(
+    values().every((value) => uuidMatches(7, false).test(value)),
+    'UUID regeneration ignored selected options',
+  );
+  const uuidClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+  let copiedUuid;
+  Object.defineProperty(navigator, 'clipboard', {
+    configurable: true,
+    value: {
+      writeText: async (value) => {
+        copiedUuid = value;
+      },
+    },
+  });
+  try {
+    button('Copy UUID 2').click();
+    await wait(() => button('Copy UUID 2').textContent === 'COPIED');
+    assert(
+      copiedUuid === secret(1).value,
+      'UUID copy ignored the compact format',
+    );
+    fits();
+    await changeAndWait(
+      () => button('v4').click(),
+      (value) => uuidMatches(4, false).test(value),
+    );
+    assert(
+      button('Copy UUID 2').textContent === 'COPY',
+      'UUID option change retained copy feedback',
+    );
+  } finally {
+    if (uuidClipboard)
+      Object.defineProperty(navigator, 'clipboard', uuidClipboard);
+    else delete navigator.clipboard;
+  }
+  await changeAndWait(
+    () => document.querySelector('#uuid-hyphens').click(),
+    (value) => uuidMatches(4, true).test(value),
+  );
+  fits();
   await navigate('Generate API key');
   await wait(
     () => values().length === 5 && values().every((value) => value !== ''),
@@ -397,6 +490,7 @@ export async function secretGenerationUiChecks() {
   );
   return {
     checks: [
+      'UUID v4/v7, both hyphen formats, navigation, copy and full/row regeneration',
       'Automatic first-open generation and regeneration on every option change',
       'Five visible results, full/inline regeneration, validation and timed copy feedback',
       'Independent tool state, navigation, narrow layout and no workspace persistence',

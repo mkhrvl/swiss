@@ -239,6 +239,61 @@ try {
     '64',
   );
   await generatorTab.close();
+  await navigateTool(page, 'Generate UUID');
+  await page.getByRole('radio', { name: 'v7', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Include hyphens' }).uncheck();
+  await page.waitForFunction(() =>
+    /^[0-9a-f]{12}7[0-9a-f]{3}[89ab][0-9a-f]{15}$/.test(
+      document.querySelector('#generated-secret-1')?.value,
+    ),
+  );
+  const sourceUuids = await page
+    .locator('input[id^="generated-secret-"]')
+    .evaluateAll((fields) => fields.map((field) => field.value));
+  const [uuidTab] = await Promise.all([
+    browser.context.waitForEvent('page'),
+    page.getByRole('button', { name: 'Open in tab', exact: true }).click(),
+  ]);
+  await uuidTab
+    .getByRole('heading', { name: 'Generate UUID', exact: true })
+    .waitFor();
+  await uuidTab.waitForFunction(() => {
+    const fields = [
+      ...document.querySelectorAll('input[id^="generated-secret-"]'),
+    ];
+    return (
+      fields.length === 5 &&
+      fields.every((field) =>
+        /^[0-9a-f]{12}7[0-9a-f]{3}[89ab][0-9a-f]{15}$/.test(field.value),
+      )
+    );
+  });
+  assert.equal(
+    await uuidTab
+      .getByRole('radio', { name: 'v7', exact: true })
+      .getAttribute('aria-checked'),
+    'true',
+  );
+  assert.equal(
+    await uuidTab
+      .getByRole('checkbox', { name: 'Include hyphens' })
+      .isChecked(),
+    false,
+  );
+  const freshUuids = await uuidTab
+    .locator('input[id^="generated-secret-"]')
+    .evaluateAll((fields) => fields.map((field) => field.value));
+  assert(freshUuids.every((value) => !sourceUuids.includes(value)));
+  assert(sourceUuids.every((value) => !uuidTab.url().includes(value)));
+  await page.getByRole('radio', { name: 'v4', exact: true }).click();
+  assert.equal(
+    await uuidTab
+      .getByRole('radio', { name: 'v7', exact: true })
+      .getAttribute('aria-checked'),
+    'true',
+  );
+  await uuidTab.close();
+
   await writeFile(
     'artifacts/web-browser/identity-chromium-extension.json',
     JSON.stringify(identity),
@@ -262,6 +317,7 @@ try {
           'Base64 and native CSP OCR',
           'One-time tab transfer and independent workspaces',
           'JSON input/options transfer and independent output recomputation',
+          'UUID tab transfer preserves version/format and generates independent results',
           'Generator tab transfer copies options without generated secrets',
           'Bcrypt tab transfer preserves inputs/cost, shows passwords, and excludes results',
           'Crop, cancel and restart, invalid region',

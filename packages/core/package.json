@@ -12,7 +12,8 @@
     "./ocr": "./src/ocr/index.ts",
     "./ocr/worker": "./src/ocr/worker.ts",
     "./secret-generation": "./src/secret-generation/index.ts",
-    "./json": "./src/json/index.ts"
+    "./json": "./src/json/index.ts",
+    "./uuid": "./src/uuid/index.ts"
   },
   "scripts": {
     "check": "tsc -p tsconfig.json"

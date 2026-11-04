@@ -35,6 +35,7 @@ import type {
   SecretEncoding,
   JwtHmacAlgorithm,
 } from '@swiss/core/secret-generation';
+import type { UuidVersion } from '@swiss/core/uuid';
 import { useWorkspace } from '../state/workspace';
 
 const bytePresets = ['16', '32', '48', '64', '80', '96', '112', '128'];
@@ -50,11 +51,13 @@ const characterTypes: { value: PasswordCharacterType; label: string }[] = [
   { value: 'symbols', label: 'Symbols (!@#$…)' },
 ];
 const titles = {
+  uuid: 'Generate UUID',
   'api-key': 'Generate API key',
   'jwt-key': 'Generate JWT signing key',
   'random-password': 'Generate password',
 };
 const outputLabels = {
+  uuid: 'UUID',
   'api-key': 'API key',
   'jwt-key': 'JWT signing key',
   'random-password': 'Generated password',
@@ -63,13 +66,14 @@ const outputLabels = {
 export function SecretGenerators({
   kind,
 }: Readonly<{
-  kind: 'api-key' | 'jwt-key' | 'random-password';
+  kind: 'api-key' | 'jwt-key' | 'random-password' | 'uuid';
 }>) {
   const { generators } = useWorkspace();
   let state: Pick<
     typeof generators.api,
     'results' | 'message' | 'error' | 'generate' | 'ensureGenerated' | 'copy'
   > = generators.api;
+  if (kind === 'uuid') state = generators.uuid;
   if (kind === 'jwt-key') state = generators.jwt;
   if (kind === 'random-password') state = generators.password;
   const { ensureGenerated } = state;
@@ -104,6 +108,43 @@ export function SecretGenerators({
         }}
       >
         <FieldGroup>
+          {kind === 'uuid' && (
+            <>
+              <Field>
+                <FieldTitle id="uuid-version-label">UUID version</FieldTitle>
+                <ToggleGroup
+                  type="single"
+                  variant="outline"
+                  value={String(generators.uuid.options.version)}
+                  aria-labelledby="uuid-version-label"
+                  onValueChange={(value) => {
+                    if (value)
+                      generators.uuid.change({
+                        version: Number(value) as UuidVersion,
+                      });
+                  }}
+                >
+                  <ToggleGroupItem value="4">v4</ToggleGroupItem>
+                  <ToggleGroupItem value="7">v7</ToggleGroupItem>
+                </ToggleGroup>
+                <FieldDescription>
+                  v4 is random. v7 includes the current Unix time in
+                  milliseconds, followed by random bits. Values within the same
+                  millisecond are randomly ordered.
+                </FieldDescription>
+              </Field>
+              <Field orientation="horizontal">
+                <Checkbox
+                  id="uuid-hyphens"
+                  checked={generators.uuid.options.hyphens}
+                  onCheckedChange={(checked) =>
+                    generators.uuid.change({ hyphens: checked === true })
+                  }
+                />
+                <FieldLabel htmlFor="uuid-hyphens">Include hyphens</FieldLabel>
+              </Field>
+            </>
+          )}
           {kind === 'api-key' && (
             <Field data-invalid={invalidLength}>
               <FieldLabel htmlFor="generator-length">Random bytes</FieldLabel>
@@ -169,7 +210,7 @@ export function SecretGenerators({
               </FieldDescription>
             </Field>
           )}
-          {kind !== 'random-password' && (
+          {(kind === 'api-key' || kind === 'jwt-key') && (
             <Field>
               <FieldTitle id="encoding-label">Encoding</FieldTitle>
               <ToggleGroup
